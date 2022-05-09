@@ -1,12 +1,18 @@
 from fastapi import FastAPI
+import logging
+from logging.config import dictConfig
 
 from app.routes import authentication
 from app.utils.response import ResponseTemplate
-from app.database import engine, Base
-from app.models.authentication import Item, User
+from app.utils.logger import LogConfig
+# from app.database import engine, Base
+# from app.models.authentication import Item, User
 from config import get_settings
 
 settings = get_settings()
+dictConfig(LogConfig().dict())
+logger = logging.getLogger("default_logger")
+logger.info(f"Starting application on {settings.env} environment")
 
 # if settings.env == "development":
 #     print("Creating database...")

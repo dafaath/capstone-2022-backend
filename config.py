@@ -1,9 +1,12 @@
 from pydantic import BaseSettings
 from functools import lru_cache
+import os
 
 
+# Change this value if running on your own machine
+# Database is currently using postgresql
 class DefaultSettings(BaseSettings):
-    env: str = "development"
+    env: str = None
     db_user: str = "postgres"
     db_pass: str = ""
     db_host: str = "localhost"
@@ -11,6 +14,25 @@ class DefaultSettings(BaseSettings):
     db_name: str = "emodiary"
 
 
+class DevSettings(DefaultSettings):
+    env: str = "development"
+
+
+class TestSettings(DefaultSettings):
+    env: str = "test"
+
+
+class ProdSettings(DefaultSettings):
+    env: str = "production"
+
+
 @lru_cache()
 def get_settings():
-    return DefaultSettings()
+    if(os.environ.get("env") == "development"):
+        return DevSettings()
+    elif(os.environ.get("env") == "test"):
+        return TestSettings()
+    elif(os.environ.get("env") == "production"):
+        return ProdSettings()
+    else:
+        return DefaultSettings()
