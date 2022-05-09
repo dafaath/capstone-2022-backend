@@ -6,7 +6,7 @@ import os
 # Change this value if running on your own machine
 # Database is currently using postgresql
 class DefaultSettings(BaseSettings):
-    env: str = None
+    env: str = "development"
     db_user: str = "postgres"
     db_pass: str = ""
     db_host: str = "localhost"
@@ -15,7 +15,7 @@ class DefaultSettings(BaseSettings):
 
 
 class DevSettings(DefaultSettings):
-    env: str = "development"
+    pass
 
 
 class TestSettings(DefaultSettings):
