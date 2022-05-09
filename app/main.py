@@ -3,7 +3,7 @@ import logging
 from logging.config import dictConfig
 
 from app.routes import authentication
-from app.utils.response import ResponseTemplate
+from app.schema.default_response import ResponseTemplate
 from app.utils.logger import LogConfig
 # from app.database import engine, Base
 # from app.models.authentication import Item, User
@@ -19,7 +19,7 @@ logger.info(f"Starting application on {settings.env} environment")
 #     Base.metadata.create_all(bind=engine)
 #     print("Finish creating")
 
-app = FastAPI(title="emodiary API")
+app = FastAPI(title="emodiary API", version="1.0.0")
 app.include_router(authentication.router)
 
 
