@@ -16,13 +16,21 @@ if config.config_file_name is not None:
 
 # add your model's MetaData object here
 # for 'autogenerate' support
-from app.models import authentication
-target_metadata = authentication.Base.metadata
+# from app.database import Base
+# from app.models.authentication import User, Session
+# target_metadata = Base.metadata
+
+from app.models.authentication import Base
+target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
+from config import get_settings
+settings = get_settings()
+SQLALCHEMY_DATABASE_URL = f"postgresql://{settings.db_user}:{settings.db_pass}@{settings.db_host}:{settings.db_port}/{settings.db_name}"
+config.set_main_option('sqlalchemy.url', SQLALCHEMY_DATABASE_URL)
 
 
 def run_migrations_offline():
