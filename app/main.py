@@ -1,4 +1,7 @@
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
+from fastapi.security import (
+    OAuth2PasswordBearer,
+)
 import logging
 from logging.config import dictConfig
 
@@ -9,10 +12,14 @@ from app.database import engine, Base
 from app.models.authentication import User
 from config import get_settings
 
+# Config settings
 settings = get_settings()
+
+# Settings for logging
 dictConfig(LogConfig().dict())
 logger = logging.getLogger("default_logger")
 logger.info(f"Starting application on {settings.env} environment")
+
 
 # ! Danger this will drop the database, only do it in testing !
 if settings.env == "test":
@@ -25,6 +32,9 @@ if settings.env == "test":
 app = FastAPI(title="emodiary API", version="1.0.0")
 app.include_router(authentication.router)
 
+oauth2_scheme = OAuth2PasswordBearer(
+    tokenUrl="authentications/login",
+)
 
 @app.get("/", tags=["Health Check"], status_code=200, response_model=ResponseTemplate)
 def health_check():

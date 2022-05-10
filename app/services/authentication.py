@@ -1,9 +1,9 @@
 from datetime import datetime, timedelta
-from typing import Optional
 from jose import jwt
-from fastapi import Depends, HTTPException
+from fastapi import  HTTPException
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from app.schema.authentication import AccessToken, LoginBody, RefreshToken, RefreshTokenBody, RegisterBody, UserResponse
+from app.schema.authentication import AccessToken,  RefreshToken, RefreshTokenBody, RegisterBody, UserResponse
 from app.models.authentication import User, Session as UserSession
 import bcrypt
 from app.utils.jwt import RefreshTokenDecrypt, decrypt_access_token, decrypt_refresh_token
@@ -35,9 +35,9 @@ def register_user(user: RegisterBody, db: Session):
     return db_user
 
 
-def login_user(payload: LoginBody, db: Session):
+def login_user(payload: OAuth2PasswordRequestForm, db: Session):
     user: User = db.query(User).filter(
-        User.email == payload.email).first()
+        User.email == payload.username).first()
 
     if user is None:
         raise HTTPException(401, "email or password is incorrect")
@@ -53,10 +53,7 @@ def login_user(payload: LoginBody, db: Session):
 
 def create_access_token(data: UserResponse):
     expires_delta = timedelta(minutes=settings.jwt_access_token_expiry_minutes)
-    if expires_delta:
-        expire = datetime.utcnow() + expires_delta
-    else:
-        expire = datetime.utcnow() + timedelta(minutes=15)
+    expire = datetime.utcnow() + expires_delta
     now = datetime.utcnow()
 
     # Mengubah id dari UUID menjadi str
