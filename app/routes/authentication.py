@@ -4,12 +4,14 @@ from app.database import get_db
 from app.schema.authentication import LoginBody, LoginResponse, LoginResponseData, RefreshTokenBody, RefreshTokenResponse, RefreshTokenResponseData, RegisterBody, RegisterResponse, UserResponse
 from app.schema.default_response import error_reason
 from app.services.authentication import create_access_token, create_refresh_token, create_session, login_user, refresh_access_token, register_user, validate_refresh_token
+from config import get_settings
 
 router = APIRouter(prefix="/authentications",
                    tags=["Authentication"])
+settings = get_settings()
 
 
-@ router.post("/register", status_code=201, response_model=RegisterResponse)
+@ router.post("/register", description="This path is for register new user", status_code=201, response_model=RegisterResponse, responses={409: error_reason("Email or phone is already exists in db")})
 def register(body: RegisterBody, db: Session = Depends(get_db)):
     saved_user = register_user(body, db)
     response = RegisterResponse(
@@ -17,7 +19,12 @@ def register(body: RegisterBody, db: Session = Depends(get_db)):
     return response
 
 
-@ router.post("/login", status_code=200, response_model=LoginResponse)
+login_desc = f"""This path is for login after register, you will get access token and refresh token in response. 
+Access token will be only valid for {settings.jwt_access_token_expiry_minutes} minutes, after which you need to gain a new one in Refresh path, using refresh token.
+"""
+
+
+@ router.post("/login", description=login_desc, status_code=200, response_model=LoginResponse, responses={401: error_reason("Password or email is not correct")})
 def login(body: LoginBody, db: Session = Depends(get_db), user_agent: str = Header(...)):
     user = login_user(body, db)
 

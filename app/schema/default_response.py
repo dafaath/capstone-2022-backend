@@ -13,12 +13,7 @@ class ResponseTemplate(AutoCamelModel):
 
 class MyHTTPError(AutoCamelModel):
     detail: str = Field(...,
-                        description="The reason for the error")
-
-    class Config:
-        schema_extra = {
-            "example": {"detail": "HTTPException raised."},
-        }
+                        description="The reason for the error", example="Error reasons")
 
 
 def error_reason(description: str):
