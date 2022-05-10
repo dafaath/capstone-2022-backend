@@ -1,11 +1,9 @@
-from datetime import timedelta
-from fastapi import APIRouter, Depends, Header, HTTPException
+from fastapi import APIRouter, Depends, Header
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.schema.authentication import LoginBody, LoginResponse, LoginResponseData, RefreshTokenBody, RefreshTokenResponse, RefreshTokenResponseData, RegisterBody, RegisterResponse, UserResponse
-from app.schema.default_response import MyHTTPError, error_reason
+from app.schema.default_response import error_reason
 from app.services.authentication import create_access_token, create_refresh_token, create_session, login_user, refresh_access_token, register_user, validate_refresh_token
-from app.utils.jwt import decrypt_refresh_token
 
 router = APIRouter(prefix="/authentications",
                    tags=["Authentication"])
@@ -40,5 +38,5 @@ def refresh(body: RefreshTokenBody, db: Session = Depends(get_db)):
     access_token = refresh_access_token(result, db)
 
     response = RefreshTokenResponse(
-        status=200, message="Refresh token successfully renewed", data=RefreshTokenResponseData(access_token=access_token))
+        status=200, message="Access token successfully renewed", data=RefreshTokenResponseData(access_token=access_token))
     return response

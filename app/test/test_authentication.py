@@ -1,11 +1,10 @@
-import os
 from fastapi.testclient import TestClient
 
 from app.main import app
 from app.utils.jwt import decrypt_access_token, decrypt_refresh_token
-from config import get_settings
 
 client = TestClient(app)
+common_var = {}
 
 
 def test_register():
@@ -42,5 +41,45 @@ def test_login():
     current_keys = set(resp['data'].keys())
     assert supposed_keys == current_keys
     # Ensure valid token
-    assert decrypt_access_token(resp['data']['accessToken']) is not None
-    assert decrypt_refresh_token(resp['data']['refreshToken']) is not None
+    result = decrypt_access_token(resp['data']['accessToken'])
+    assert result.valid
+    assert not result.expired
+    assert result.payload is not None
+    assert result.payload.id
+    assert result.payload.email
+    assert result.payload.phone
+    assert result.payload.is_active
+
+    result = decrypt_refresh_token(resp['data']['refreshToken'])
+    assert result.valid
+    assert not result.expired
+    assert result.payload is not None
+    assert result.payload.user_id
+    assert result.payload.session_id
+
+    common_var["refreshToken"] = resp['data']['refreshToken']
+    common_var["accessToken"] = resp['data']['accessToken']
+
+
+def test_refresh():
+    response = client.post("/authentications/refresh", json={
+        "refreshToken": common_var["refreshToken"]
+    })
+    resp = response.json()
+    print(resp)
+    assert response.status_code == 200
+    assert resp['status'] == response.status_code
+    assert "Access token successfully renewed" in resp['message']
+
+    supposed_keys = set(["accessToken"])
+    current_keys = set(resp['data'].keys())
+    assert supposed_keys == current_keys
+    # Ensure valid token
+    result = decrypt_access_token(resp['data']['accessToken'])
+    assert result.valid
+    assert not result.expired
+    assert result.payload is not None
+    assert result.payload.id
+    assert result.payload.email
+    assert result.payload.phone
+    assert result.payload.is_active
