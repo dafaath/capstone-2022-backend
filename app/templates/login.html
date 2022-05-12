@@ -1,0 +1,34 @@
+<html>
+
+    <head>
+        <title>Login with google example</title>
+    </head>
+
+    <body>
+        <script src="https://accounts.google.com/gsi/client" onload="console.log('TODO: add onload function')">
+        </script>
+        <div id="g_id_onload" data-client_id="137562844094-8v9i3tc76635h2hrm7kk0f2dg7sodnkk.apps.googleusercontent.com"
+            data-callback="handleCredentialResponse">
+        </div>
+        <div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline" data-text="sign_in_with"
+            data-shape="rectangular" data-logo_alignment="left">
+        </div>
+        <script>
+            function handleCredentialResponse(response) {
+                const formData = new FormData();
+                formData.append('credential', response.credential);
+                fetch('/authentications/login/google', {
+                        method: 'POST', // *GET, POST, PUT, DELETE, etc
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data)
+                        alert("Berhasil login, lihat console untuk melihat hasilnya")
+                    });
+
+            }
+        </script>
+    </body>
+
+</html>
