@@ -19,11 +19,31 @@ def test_register():
     assert resp['status'] == response.status_code
     assert "Registration successful" in resp['message']
 
-    supposed_keys = set(["id", "email", "phone", "isActive"])
+    supposed_keys = set(["id", "email", "phone", "isActive", "timeCreated", "photo", "timeUpdated"])
     current_keys = set(resp['data'].keys())
     assert supposed_keys == current_keys
 
-    assert resp['data']['isActive'] == True
+    assert resp['data']['isActive']
+
+
+def check_access_token(result):
+    assert result.valid
+    assert not result.expired
+    assert result.payload is not None
+    assert result.payload.id
+    assert result.payload.email
+    assert result.payload.phone
+    assert result.payload.is_active
+    assert result.payload.time_created
+    assert result.payload.time_updated
+
+
+def check_refresh_token(result):
+    assert result.valid
+    assert not result.expired
+    assert result.payload is not None
+    assert result.payload.user_id
+    assert result.payload.session_id
 
 
 def test_login():
@@ -40,20 +60,10 @@ def test_login():
     assert supposed_keys == current_keys
     # Ensure valid token
     result = decrypt_access_token(resp['access_token'])
-    assert result.valid
-    assert not result.expired
-    assert result.payload is not None
-    assert result.payload.id
-    assert result.payload.email
-    assert result.payload.phone
-    assert result.payload.is_active
+    check_access_token(result)
 
     result = decrypt_refresh_token(resp['refresh_token'])
-    assert result.valid
-    assert not result.expired
-    assert result.payload is not None
-    assert result.payload.user_id
-    assert result.payload.session_id
+    check_refresh_token(result)
 
     common_var["refreshToken"] = resp['refresh_token']
     common_var["accessToken"] = resp['access_token']
@@ -74,10 +84,4 @@ def test_refresh():
     assert supposed_keys == current_keys
     # Ensure valid token
     result = decrypt_access_token(resp['data']['accessToken'])
-    assert result.valid
-    assert not result.expired
-    assert result.payload is not None
-    assert result.payload.id
-    assert result.payload.email
-    assert result.payload.phone
-    assert result.payload.is_active
+    check_access_token(result)

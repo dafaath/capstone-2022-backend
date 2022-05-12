@@ -1,15 +1,15 @@
-from datetime import date, datetime
-from doctest import Example
+from datetime import datetime
 from typing import Optional
 from uuid import UUID
 from fastapi import Path
 from pydantic import BaseModel, Field, EmailStr
 from app.models.authentication import User
 from app.schema.default_response import ResponseTemplate
-from app.utils.schema import AutoCamelModel
+from app.utils.schema import AutoCamelModel, to_camel
 from config import get_settings
 
 settings = get_settings()
+
 
 class RegisterBase(AutoCamelModel):
     email: EmailStr = Field(..., example="example@gmail.com",
@@ -25,8 +25,18 @@ class RegisterBody(RegisterBase):
 
 class UserResponse(RegisterBase):
     id: UUID = Field(..., description="User id in UUID format")
-    is_active: bool = Field(
-        ..., description="Is user is an active user or not")
+    phone: Optional[str] = Field(
+        None,
+        example="+6281390823143",
+        regex=r"\+[\d]{8,15}",
+        description="User telephone number with country code in front, with a 8-15 character length")
+    is_active: bool = Field(..., description="Is user is an active user or not")
+    photo: str = Field(..., description="The path to the user photo profile")
+    time_created: datetime = Field(..., description="The time this object is created",
+                                   example="2022-05-12T14:30:28.304902+07:00")
+    time_updated: datetime = Field(...,
+                                   description="The time this object is last updated",
+                                   example="2022-05-12T14:30:28.304902+07:00")
 
 
 class RegisterResponse(ResponseTemplate):
@@ -34,16 +44,23 @@ class RegisterResponse(ResponseTemplate):
 
 
 class LoginResponse(BaseModel):
-    access_token: str = Field(..., example="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImYzZjYxZWQ4LTNhMDYtNDhlNi05NGE4LTkzZTU2ZDg0YjI5NiIsImVtYWlsIjoiZGFmYUBnbWFpbC5jb20iLCJwaG9uZSI6Iis2MjgxMzI5MDgyMzE0czEiLCJpc19hY3RpdmUiOnRydWUsImV4cCI6MTY1MjEwMjk5MCwiaWF0IjoxNjUyMTAyMDkwfQ.SyhCaUvvvB7jMk5T7dEsGScHy6Pe5FqZhIkBEnJggT0", description=f"JWT access token that will expire in {settings.jwt_access_token_expiry_minutes} minutes")
-    refresh_token: str = Field(..., example="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uX2lkIjoiOWEwYmFlZDMtMzMwMy00MjczLTkzYjYtM2NiMjUzOGI1MjdjIiwidXNlcl9pZCI6IjM3YjVlNjU4LWM3NjUtNGYyZC1hNWEwLWJjNjgwNWZjY2ZhYiIsImlhdCI6MTY1MjE2MjIyN30.EXkeCHuqA93MSTbkAoNJU06qsbQcoBRPnH6RZYEOYvo",
-                               description="Refresh access token, use this to refresh the access token above in /authentications/refresh path")
-    token_type:str = Field(..., example="bearer")
+    access_token: str = Field(
+        ...,
+        example="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImYzZjYxZWQ4LTNhMDYtNDhlNi05NGE4LTkzZTU2ZDg0YjI5NiIsImVtYWlsIjoiZGFmYUBnbWFpbC5jb20iLCJwaG9uZSI6Iis2MjgxMzI5MDgyMzE0czEiLCJpc19hY3RpdmUiOnRydWUsImV4cCI6MTY1MjEwMjk5MCwiaWF0IjoxNjUyMTAyMDkwfQ.SyhCaUvvvB7jMk5T7dEsGScHy6Pe5FqZhIkBEnJggT0",
+        description=f"JWT access token that will expire in {settings.jwt_access_token_expiry_minutes} minutes")
+    refresh_token: str = Field(
+        ...,
+        example="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uX2lkIjoiOWEwYmFlZDMtMzMwMy00MjczLTkzYjYtM2NiMjUzOGI1MjdjIiwidXNlcl9pZCI6IjM3YjVlNjU4LWM3NjUtNGYyZC1hNWEwLWJjNjgwNWZjY2ZhYiIsImlhdCI6MTY1MjE2MjIyN30.EXkeCHuqA93MSTbkAoNJU06qsbQcoBRPnH6RZYEOYvo",
+        description="Refresh access token, use this to refresh the access token above in /authentications/refresh path")
+    token_type: str = Field(..., example="bearer")
     expires_in: int = Field(..., description="Time until access token expires (in seconds)", example=3600)
     scope: Optional[str] = Field(None, description="Authorize list of actions", example="create")
 
 
 class AccessToken(UserResponse):
     id: str
+    time_created: str
+    time_updated: str
     iat: datetime
     exp: datetime
 
@@ -55,13 +72,40 @@ class RefreshToken(AutoCamelModel):
 
 
 class RefreshTokenBody(AutoCamelModel):
-    refresh_token: str = Field(..., example="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uX2lkIjoiOWEwYmFlZDMtMzMwMy00MjczLTkzYjYtM2NiMjUzOGI1MjdjIiwidXNlcl9pZCI6IjM3YjVlNjU4LWM3NjUtNGYyZC1hNWEwLWJjNjgwNWZjY2ZhYiIsImlhdCI6MTY1MjE2MjIyN30.EXkeCHuqA93MSTbkAoNJU06qsbQcoBRPnH6RZYEOYvo",
-                               description="Refresh token gained from response after login")
+    refresh_token: str = Field(
+        ...,
+        example="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uX2lkIjoiOWEwYmFlZDMtMzMwMy00MjczLTkzYjYtM2NiMjUzOGI1MjdjIiwidXNlcl9pZCI6IjM3YjVlNjU4LWM3NjUtNGYyZC1hNWEwLWJjNjgwNWZjY2ZhYiIsImlhdCI6MTY1MjE2MjIyN30.EXkeCHuqA93MSTbkAoNJU06qsbQcoBRPnH6RZYEOYvo",
+        description="Refresh token gained from response after login")
 
 
 class RefreshTokenResponseData(AutoCamelModel):
-    access_token: str = Field(..., example="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImYzZjYxZWQ4LTNhMDYtNDhlNi05NGE4LTkzZTU2ZDg0YjI5NiIsImVtYWlsIjoiZGFmYUBnbWFpbC5jb20iLCJwaG9uZSI6Iis2MjgxMzI5MDgyMzE0czEiLCJpc19hY3RpdmUiOnRydWUsImV4cCI6MTY1MjEwMjk5MCwiaWF0IjoxNjUyMTAyMDkwfQ.SyhCaUvvvB7jMk5T7dEsGScHy6Pe5FqZhIkBEnJggT0", description=f"JWT access token that will expire in {settings.jwt_access_token_expiry_minutes} minutes")
+    access_token: str = Field(
+        ...,
+        example="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImYzZjYxZWQ4LTNhMDYtNDhlNi05NGE4LTkzZTU2ZDg0YjI5NiIsImVtYWlsIjoiZGFmYUBnbWFpbC5jb20iLCJwaG9uZSI6Iis2MjgxMzI5MDgyMzE0czEiLCJpc19hY3RpdmUiOnRydWUsImV4cCI6MTY1MjEwMjk5MCwiaWF0IjoxNjUyMTAyMDkwfQ.SyhCaUvvvB7jMk5T7dEsGScHy6Pe5FqZhIkBEnJggT0",
+        description=f"JWT access token that will expire in {settings.jwt_access_token_expiry_minutes} minutes")
 
 
 class RefreshTokenResponse(ResponseTemplate):
     data: RefreshTokenResponseData
+
+
+class LoginGoogleBody(AutoCamelModel):
+    token: str = Path(..., description="Google jwt token after sign in with google")
+# Generated by https://quicktype.io
+
+
+class GoogleJWTPayload(AutoCamelModel):
+    iss: str
+    nbf: int
+    aud: str
+    sub: str
+    email: str
+    email_verified: bool
+    azp: str
+    name: str
+    picture: str
+    given_name: str
+    family_name: str
+    iat: int
+    exp: int
+    jti: str

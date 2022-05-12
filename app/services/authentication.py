@@ -1,12 +1,15 @@
 from datetime import datetime, timedelta
 from jose import jwt
-from fastapi import  HTTPException
+from fastapi import HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from app.schema.authentication import AccessToken,  RefreshToken, RefreshTokenBody, RegisterBody, UserResponse
+from app.schema.authentication import AccessToken, GoogleJWTPayload, RefreshToken, RefreshTokenBody, RegisterBody, UserResponse
 from app.models.authentication import User, Session as UserSession
 import bcrypt
+from app.services.user import get_user_by_email
 from app.utils.jwt import RefreshTokenDecrypt, decrypt_access_token, decrypt_refresh_token
+from google.oauth2 import id_token
+from google.auth.transport import requests
 
 from config import get_settings
 
@@ -14,8 +17,7 @@ settings = get_settings()
 
 
 def register_user(user: RegisterBody, db: Session):
-    email_exist = db.query(User).filter(
-        User.email == user.email).first() is not None
+    email_exist = get_user_by_email(user.email, db) is not None
     if email_exist:
         raise HTTPException(status_code=409, detail="Email is already exists")
 
@@ -36,9 +38,7 @@ def register_user(user: RegisterBody, db: Session):
 
 
 def login_user(payload: OAuth2PasswordRequestForm, db: Session):
-    user: User = db.query(User).filter(
-        User.email == payload.username).first()
-
+    user: User = get_user_by_email(payload.username, db)
     if user is None:
         raise HTTPException(401, "email or password is incorrect")
 
@@ -58,6 +58,8 @@ def create_access_token(data: UserResponse):
 
     # Mengubah id dari UUID menjadi str
     data.id = str(data.id)
+    data.time_created = data.time_created.isoformat()
+    data.time_updated = data.time_updated.isoformat()
     payload: AccessToken = AccessToken(**data.dict(), exp=expire, iat=now)
     payload_dict = payload.dict()
 
@@ -137,3 +139,31 @@ def get_current_user(token: str, db: Session):
         raise expired_exception
 
     return user
+
+
+def validate_google_csrf_token(csrf_token_body: str, csrf_token_cookie: str):
+    if not csrf_token_cookie:
+        HTTPException(401, 'No CSRF token in Cookie.')
+    if not csrf_token_body:
+        HTTPException(401, 'No CSRF token in post body.')
+    if csrf_token_cookie != csrf_token_body:
+        HTTPException(401, 'Failed to verify double submit cookie.')
+
+
+def validate_google_token(token: str):
+    try:
+        payload = id_token.verify_oauth2_token(token, requests.Request(), settings.google_client_id)
+        payload = GoogleJWTPayload(**payload)
+        return payload
+    except ValueError:
+        # Invalid token
+        raise HTTPException(401, "The google token is invalid")
+
+
+def register_google_user(email: str, db: Session):
+    db_user = User(
+        email=email)
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
