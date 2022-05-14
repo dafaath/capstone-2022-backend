@@ -163,7 +163,7 @@ cython_debug/
 *.vscode
 
 # NODE
-# Logs
+# LoG
 logs
 *.log
 npm-debug.log*
