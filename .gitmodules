@@ -1,3 +1,0 @@
-[submodule "postman-sync"]
-	path = postman-sync
-	url = ../../bpedro/postman-openapi-sync.git
