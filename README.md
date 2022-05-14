@@ -1,4 +1,16 @@
-# capstone-2022-backend
+# Emo Diary API
+
+## Documentation
+You have multiple option for the documentation, all of the option below is a substitute for each other, feel free to use whichever you prefer:
+- You can run the app on localhost and:
+    - Go to /docs to see a swagger documentation
+    - Go to /redoc to see a redoc documentation (Alternative to swagger)
+- You can directly go to below url:
+    - `NOT-DEPLOYED-YET/docs` see a swagger documentation 
+    - `NOT-DEPLOYED-YET/redoc` see a redoc documentation (Alternative to swagger)
+- [Postman documentation](https://documenter.getpostman.com/view/14947205/UyxjEkor)
+- [Postman public workspace](https://www.postman.com/dafaathaullah/workspace/emodiary/overview )
+
 
 ## How to run
 1. Install python, pip, and postgreSQL.
