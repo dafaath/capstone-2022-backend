@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const SwaggerParser = require('@apidevtools/swagger-parser');
-const Postman = require('./lib/postman-sdk');
+const Postman = require('./helper/postman-sdk');
 const path = require('node:path');
 
 const envFilePath = path.join(__dirname, '..', '.env')
