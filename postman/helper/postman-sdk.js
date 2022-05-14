@@ -1,5 +1,4 @@
 const axios = require('axios');
-const YAML = require('yaml');
 const querystring = require('querystring');
 
 class Postman {
@@ -70,7 +69,6 @@ class Postman {
     }, {
       api: data
     });
-    return api;
   }
 
   async updateAPI(apiId, data = {}) {
@@ -114,8 +112,8 @@ class Postman {
     const data = await this.post(`apis/${apiId}/versions/${apiVersionId}/schemas`, null, {
       schema: {
         type: 'openapi3',
-        language: 'yaml',
-        schema: YAML.stringify(schema)
+        language: 'json',
+        schema: JSON.stringify(schema)
       }
     });
     return data;
@@ -125,8 +123,8 @@ class Postman {
     const data = await this.put(`apis/${apiId}/versions/${apiVersionId}/schemas/${schemaId}`, null, {
       schema: {
         type: 'openapi3',
-        language: 'yaml',
-        schema: YAML.stringify(schema)
+        language: 'json',
+        schema: JSON.stringify(schema)
       }
     });
     return data;
@@ -146,6 +144,11 @@ class Postman {
         "type": "documentation"
       }]
     });
+    return data;
+  }
+
+  async syncCollection(apiId, apiVersionId, entityId) {
+    const data = await this.put(`apis/${apiId}/versions/${apiVersionId}/documentation/${entityId}/syncWithSchema`, null, null);
     return data;
   }
 

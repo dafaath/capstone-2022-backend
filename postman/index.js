@@ -64,12 +64,11 @@ const openApiPath = path.join(__dirname, '..', 'openapi.json');
 
     // Syncing collection to api schema
     console.info("Syncing collection to api schema")
-    let getTestSuite = await postman.getDocumentationRelations(remoteAPI.id, remoteAPIVersion.id)
-    if (!getTestSuite.documentation.length) {
+    let getDocumentationCollections = await postman.getDocumentationRelations(remoteAPI.id, remoteAPIVersion.id)
+    if (!getDocumentationCollections.documentation.length) {
       let response = await postman.generateCollections(remoteAPI.id, remoteAPIVersion.id, schemaUpdate.schema.id, remoteAPIVersion.name)
     } else {
-      let deleteResponse = await postman.deleteCollection(getTestSuite.documentation[0].collectionId)
-      let response = await postman.generateCollections(remoteAPI.id, remoteAPIVersion.id, schemaUpdate.schema.id, remoteAPIVersion.name)
+      let response = await postman.syncCollection(remoteAPI.id, remoteAPIVersion.id, getDocumentationCollections.documentation[0].id)
     }
     console.info("Finishing generating api and collection")
   } catch (err) {

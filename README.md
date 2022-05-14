@@ -8,7 +8,7 @@ You have multiple option for the documentation, all of the option below is a sub
 - You can directly go to below url:
     - `NOT-DEPLOYED-YET/docs` see a swagger documentation 
     - `NOT-DEPLOYED-YET/redoc` see a redoc documentation (Alternative to swagger)
-- [Postman documentation](https://documenter.getpostman.com/view/14947205/UyxjEkor)
+- [Postman documentation](https://documenter.getpostman.com/view/14947205/UyxjEkxj#d9f54be0-f596-43cf-bd30-cfdcc6e6074e)
 - [Postman public workspace](https://www.postman.com/dafaathaullah/workspace/emodiary/overview )
 
 
