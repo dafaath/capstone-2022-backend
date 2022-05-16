@@ -1,4 +1,5 @@
 from xmlrpc.client import Boolean
+from fastapi import Depends
 from jose import JWTError, jwt, ExpiredSignatureError
 from app.schema.authentication import AccessToken, RefreshToken
 from app.utils.schema import AutoCamelModel

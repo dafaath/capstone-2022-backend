@@ -1,40 +1,22 @@
 from datetime import datetime, timedelta
-from jose import jwt
+
+import bcrypt
+from app.models import User, Session as UserSession
+from app.schema.authentication import (AccessToken, GoogleJWTPayload,
+                                       RefreshToken, RefreshTokenBody,
+                                       UserResponse)
+from app.services.user import get_user_by_email
+from app.utils.jwt import (AccessTokenDecrypt, RefreshTokenDecrypt, decrypt_access_token,
+                           decrypt_refresh_token)
+from config import get_settings
 from fastapi import HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy.orm import Session
-from app.schema.authentication import AccessToken, GoogleJWTPayload, RefreshToken, RefreshTokenBody, RegisterBody, UserResponse
-from app.models.authentication import User, Session as UserSession
-import bcrypt
-from app.services.user import get_user_by_email
-from app.utils.jwt import RefreshTokenDecrypt, decrypt_access_token, decrypt_refresh_token
-from google.oauth2 import id_token
 from google.auth.transport import requests
-
-from config import get_settings
+from google.oauth2 import id_token
+from jose import jwt
+from sqlalchemy.orm import Session
 
 settings = get_settings()
-
-
-def register_user(user: RegisterBody, db: Session):
-    email_exist = get_user_by_email(user.email, db) is not None
-    if email_exist:
-        raise HTTPException(status_code=409, detail="Email is already exists")
-
-    phone_exist = db.query(User).filter(
-        User.phone == user.phone).first() is not None
-    if phone_exist:
-        raise HTTPException(
-            status_code=409, detail="Phone number is already exists")
-
-    salt = bcrypt.gensalt()
-    hashed_password = bcrypt.hashpw(user.password.encode('utf-8'), salt)
-    db_user = User(
-        email=user.email, password=hashed_password.decode('utf-8'), phone=user.phone)
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
-    return db_user
 
 
 def login_user(payload: OAuth2PasswordRequestForm, db: Session):
@@ -79,13 +61,29 @@ def create_refresh_token(session: UserSession, user: User):
     return refresh_token
 
 
-def validate_refresh_token(body: RefreshTokenBody):
-    result = decrypt_refresh_token(body.refresh_token)
+def check_jwt_result(result: RefreshTokenDecrypt | AccessTokenDecrypt):
+    token_type = ""
+    if(isinstance(result, RefreshTokenDecrypt)):
+        token_type = "Refresh"
+    else:
+        token_type = "Access"
+
     if result.expired:
         raise HTTPException(
-            401, detail="Refresh token is not already expired")
+            401, detail=f"{token_type} token is not already expired")
     if not result.valid:
-        raise HTTPException(401, detail="Refresh token is not valid")
+        raise HTTPException(401, detail=f"{token_type} token is not valid")
+
+
+def validate_access_token(access_token: RefreshTokenBody):
+    result = decrypt_access_token(access_token)
+    check_jwt_result(result)
+    return result
+
+
+def validate_refresh_token(refresh_token: RefreshTokenBody):
+    result = decrypt_refresh_token(refresh_token)
+    check_jwt_result(result)
     return result
 
 

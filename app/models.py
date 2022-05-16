@@ -1,11 +1,16 @@
 import datetime
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String
-from sqlalchemy.sql import func
+import enum
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Enum
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 
 from app.database import Base
 from uuid import uuid4
+
+
+class UserRole(str, enum.Enum):
+    ADMIN = "ADMIN"
+    REGULAR = "REGULAR"
 
 
 class User(Base):
@@ -18,6 +23,7 @@ class User(Base):
     phone = Column(String, index=True, unique=True, nullable=True)
     is_active = Column(Boolean, default=True, nullable=False)
     photo = Column(String, default="default.png", nullable=False)
+    role = Column(Enum(UserRole), nullable=False, default=UserRole.REGULAR)
     time_created = Column(DateTime(timezone=True), default=datetime.datetime.utcnow, nullable=False)
     time_updated = Column(
         DateTime(
@@ -25,7 +31,7 @@ class User(Base):
         default=datetime.datetime.utcnow,
         onupdate=datetime.datetime.utcnow,
         nullable=False)
-    sessions = relationship("Session", back_populates="user")
+    sessions = relationship("Session", back_populates="user", cascade="all, delete")
 
 
 class Session(Base):
