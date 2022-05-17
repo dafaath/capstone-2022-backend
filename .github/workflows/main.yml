@@ -7,6 +7,17 @@ jobs:
   deploy_source:
     name: Deploying to server and update postman API docs
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:11
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ""
+          POSTGRES_DB: test_emodiary
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
     steps:
       - uses: actions/checkout@master
       - uses: actions/setup-python@master
@@ -35,7 +46,10 @@ jobs:
       - name: Test code and run formatter
         run: |
           source env/bin/activate
-          tox
+          pytest
+          isort app/
+          autopep8 --in-place --recursive app/
+
       - name: Check for modified files
         id: git-check
         run: echo ::set-output name=modified::$(if git diff-index --quiet HEAD --; then echo "false"; else echo "true"; fi)
