@@ -1,7 +1,9 @@
 from datetime import datetime
 from typing import Optional
 from uuid import UUID
-from pydantic import Field, EmailStr, validator
+
+from pydantic import EmailStr, Field, validator
+
 from app.models import UserRole
 from app.schema.default_response import ResponseTemplate
 from app.utils.schema import AutoCamelModel

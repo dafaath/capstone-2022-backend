@@ -2,8 +2,11 @@ from fastapi.testclient import TestClient
 
 from app.main import app
 from app.utils.jwt import decrypt_access_token, decrypt_refresh_token
-from app.utils.test import USER_RESPONSE_KEYS, have_base_templates, have_correct_data_properties, have_correct_status_and_message, have_not_undefined
-from config import get_settings, RunningENV
+from app.utils.test import (USER_RESPONSE_KEYS, have_base_templates,
+                            have_correct_data_properties,
+                            have_correct_status_and_message,
+                            have_not_undefined)
+from config import RunningENV, get_settings
 
 client = TestClient(app)
 common_var = {}

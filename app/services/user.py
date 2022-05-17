@@ -1,7 +1,8 @@
+from typing import Optional
+
 import bcrypt
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from typing import Optional
 
 from app.models import User, UserRole
 from app.schema.user import RegisterBody, UpdateUserBody

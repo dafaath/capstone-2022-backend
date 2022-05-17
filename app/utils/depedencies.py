@@ -1,4 +1,5 @@
 from fastapi import Depends, HTTPException
+
 from app import oauth2_scheme
 from app.models import UserRole
 from app.schema.authentication import AccessToken

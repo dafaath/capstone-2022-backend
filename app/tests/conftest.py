@@ -1,13 +1,15 @@
 import asyncio
+
 import pytest
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, close_all_sessions
+
 from app.database import Base, engine, get_db
 from app.schema.user import UserResponse
 from app.services.authentication import create_access_token
 from app.services.user import get_user_by_email
-from app.utils.startup import create_admin_account_if_not_exists, create_test_account_if_not_exists
+from app.utils.startup import (create_admin_account_if_not_exists,
+                               create_test_account_if_not_exists)
 from config import DefaultSettings, get_settings
-from sqlalchemy.orm import close_all_sessions
 
 
 @pytest.fixture(scope="session")

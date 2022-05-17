@@ -1,11 +1,12 @@
 import logging
-from fastapi.templating import Jinja2Templates
-from fastapi.security import (
-    OAuth2PasswordBearer,
-)
 from logging.config import dictConfig
+
+from fastapi.security import OAuth2PasswordBearer
+from fastapi.templating import Jinja2Templates
+
 from app.utils.logger import LogConfig
 from config import get_settings
+
 # Templating for google login example
 templates = Jinja2Templates(directory="app/templates")
 

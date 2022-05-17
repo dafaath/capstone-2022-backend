@@ -1,14 +1,14 @@
 import json
 import os
 
-from sqlalchemy.orm import Session
 from aiofile import async_open
-from app.models import UserRole
-from app.schema.user import RegisterBody
-from app.services.user import get_user_by_email, register_user
+from sqlalchemy.orm import Session
+
 from app import logger
 from app.database import engine
-from app.models import Base
+from app.models import Base, UserRole
+from app.schema.user import RegisterBody
+from app.services.user import get_user_by_email, register_user
 from config import DefaultSettings, RunningENV
 
 

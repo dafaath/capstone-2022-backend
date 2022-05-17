@@ -1,8 +1,11 @@
+from fastapi import APIRouter, Depends, Form, Header
+from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy.orm import Session
+
 from app.database import get_db
 from app.schema.authentication import (LoginResponse, RefreshTokenBody,
                                        RefreshTokenResponse,
-                                       RefreshTokenResponseData,
-                                       UserResponse)
+                                       RefreshTokenResponseData, UserResponse)
 from app.schema.default_response import error_reason
 from app.services.authentication import (create_access_token,
                                          create_refresh_token, create_session,
@@ -12,9 +15,6 @@ from app.services.authentication import (create_access_token,
                                          validate_refresh_token)
 from app.services.user import get_user_by_email
 from config import get_settings
-from fastapi import APIRouter, Depends, Form, Header
-from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy.orm import Session
 
 router = APIRouter(prefix="/authentications",
                    tags=["Authentication"])

@@ -1,11 +1,11 @@
 from xmlrpc.client import Boolean
+
 from fastapi import Depends
-from jose import JWTError, jwt, ExpiredSignatureError
+from jose import ExpiredSignatureError, JWTError, jwt
+
 from app.schema.authentication import AccessToken, RefreshToken
 from app.utils.schema import AutoCamelModel
-
 from config import get_settings
-
 
 settings = get_settings()
 

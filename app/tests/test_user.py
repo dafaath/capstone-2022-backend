@@ -1,9 +1,11 @@
-from app.main import app
-from app.utils.test import (USER_RESPONSE_KEYS, have_base_templates, have_correct_data_properties, have_correct_status,
-                            have_correct_status_and_message,
-                            have_data_list_with_correct_properties, have_error_detail, random_char, random_digit)
 from fastapi.testclient import TestClient
 
+from app.main import app
+from app.utils.test import (USER_RESPONSE_KEYS, have_base_templates,
+                            have_correct_data_properties, have_correct_status,
+                            have_correct_status_and_message,
+                            have_data_list_with_correct_properties,
+                            have_error_detail, random_char, random_digit)
 from config import get_settings
 
 client = TestClient(app)

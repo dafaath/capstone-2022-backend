@@ -1,16 +1,21 @@
 
+from fastapi import APIRouter, Depends, HTTPException, Path
 from pydantic import parse_obj_as
+from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models import UserRole
 from app.schema.authentication import AccessToken
 from app.schema.default_response import error_reason
-from app.schema.user import DeleteUserResponse, GetAllUserResponse, GetOneUserResponse, RegisterBody, RegisterResponse, UpdateUserBody, UpdateUserResponse, UserResponse
-from app.services.user import delete_user, get_all_user, get_user_by_email, get_user_by_id, get_user_by_id_or_error, register_user, update_user
+from app.schema.user import (DeleteUserResponse, GetAllUserResponse,
+                             GetOneUserResponse, RegisterBody,
+                             RegisterResponse, UpdateUserBody,
+                             UpdateUserResponse, UserResponse)
+from app.services.user import (delete_user, get_all_user, get_user_by_email,
+                               get_user_by_id, get_user_by_id_or_error,
+                               register_user, update_user)
 from app.utils.depedencies import get_admin, get_current_user
 from config import get_settings
-from fastapi import APIRouter, Depends, Path, HTTPException
-from sqlalchemy.orm import Session
 
 router = APIRouter(prefix="/users",
                    tags=["User"])

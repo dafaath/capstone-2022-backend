@@ -1,20 +1,22 @@
 from datetime import datetime, timedelta
 
 import bcrypt
-from app.models import User, Session as UserSession
-from app.schema.authentication import (AccessToken, GoogleJWTPayload,
-                                       RefreshToken, RefreshTokenBody,
-                                       UserResponse)
-from app.services.user import get_user_by_email
-from app.utils.jwt import (AccessTokenDecrypt, RefreshTokenDecrypt, decrypt_access_token,
-                           decrypt_refresh_token)
-from config import get_settings
 from fastapi import HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from google.auth.transport import requests
 from google.oauth2 import id_token
 from jose import jwt
 from sqlalchemy.orm import Session
+
+from app.models import Session as UserSession
+from app.models import User
+from app.schema.authentication import (AccessToken, GoogleJWTPayload,
+                                       RefreshToken, RefreshTokenBody,
+                                       UserResponse)
+from app.services.user import get_user_by_email
+from app.utils.jwt import (AccessTokenDecrypt, RefreshTokenDecrypt,
+                           decrypt_access_token, decrypt_refresh_token)
+from config import get_settings
 
 settings = get_settings()
 

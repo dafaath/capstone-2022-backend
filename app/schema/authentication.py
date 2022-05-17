@@ -1,7 +1,9 @@
 from datetime import datetime
 from typing import Optional
+
 from fastapi import Path
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, EmailStr, Field
+
 from app.schema.default_response import ResponseTemplate
 from app.schema.user import UserResponse
 from app.utils.schema import AutoCamelModel, to_camel

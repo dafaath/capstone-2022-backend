@@ -1,4 +1,5 @@
 from doctest import Example
+
 from pydantic import Field
 
 from app.utils.schema import AutoCamelModel

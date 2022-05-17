@@ -1,5 +1,33 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = [
+  "setuptools >= 35.0.2",
+  "setuptools_scm >= 2.0.0, <3",
+]
+
 [tool.autopep8]
-max_line_length = 120
-ignore = "E501,W6"  # or ["E501", "W6"]
-recursive = true
-aggressive = 3
+aggressive = 3 
+ignore = "E501,W6" # or ["E501", "W6"]
+max_line_length = 120 
+recursive = true 
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+env = [
+  "ENV=test",
+]
+
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+envlist = python3.9,python3.10
+isolated_build = True
+
+[testenv]
+commands =
+  pytest {posargs}
+  isort app/
+  autopep8 --in-place --recursive app/
+deps =
+  -rrequirements.txt
+"""
