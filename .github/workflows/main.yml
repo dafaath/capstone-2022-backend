@@ -27,7 +27,7 @@ jobs:
       - uses: actions/checkout@master
       - uses: actions/setup-python@master
         with:
-          python-version: "3.10" # Version range or exact version of a Python version to use, using SemVer's version range syntax
+          python-version: "3.9" # Version range or exact version of a Python version to use, using SemVer's version range syntax
       - uses: actions/setup-node@master
         with:
           node-version: 16
@@ -62,15 +62,18 @@ jobs:
           DB_PORT: 5432
           DB_NAME: test_emodiary
 
-      - name: Check for modified files
-        id: git-check
-        run: echo ::set-output name=modified::$(if git diff-index --quiet HEAD --; then echo "false"; else echo "true"; fi)
+      - name: Verify Changed files
+        uses: tj-actions/verify-changed-files@v9
+        id: verify-changed-files
+        with:
+          files: |
+            app/**/*.py
       - name: Extract branch name
         shell: bash
         run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
         id: extract_branch
       - name: Push changes
-        if: steps.git-check.outputs.modified == 'true'
+        if: steps.verify-changed-files.outputs.files_changed == 'true'
         run: |
           git config --global user.name 'Muhammad Dafa Athaullah'
           git config --global user.email 'dafaathaullah123@gmail.com'
