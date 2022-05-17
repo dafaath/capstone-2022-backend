@@ -1,19 +1,24 @@
 name: Deploy this application
 on:
   push:
-    branches: [master]
+    branches: [master, feature/github-action]
 
 jobs:
   deploy_source:
-    name: Deploying to server and update postman API docs
+    name: Test and deploying to server
     runs-on: ubuntu-latest
     services:
       postgres:
         image: postgres:11
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: ""
+          # optional (defaults to `postgres`)
           POSTGRES_DB: test_emodiary
+          # required
+          POSTGRES_PASSWORD: postgres
+          # optional (defaults to `5432`)
+          POSTGRES_PORT: 5432
+          # optional (defaults to `postgres`)
+          POSTGRES_USER: postgres
         ports:
           - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
@@ -49,10 +54,21 @@ jobs:
           pytest
           isort app/
           autopep8 --in-place --recursive app/
+        env:
+          ENV: "test"
+          DB_USER: postgres
+          DB_PASS: postgres
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_NAME: test_emodiary
 
       - name: Check for modified files
         id: git-check
         run: echo ::set-output name=modified::$(if git diff-index --quiet HEAD --; then echo "false"; else echo "true"; fi)
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
       - name: Push changes
         if: steps.git-check.outputs.modified == 'true'
         run: |
@@ -60,4 +76,4 @@ jobs:
           git config --global user.email 'dafaathaullah123@gmail.com'
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           git commit -am "Automated changes for formatting purposes"
-          git push
+          git push origin ${{ steps.extract_branch.outputs.branch }}
