@@ -1,7 +1,7 @@
 name: Deploy this application
 on:
   push:
-    branches: [master, feature/github-action]
+    branches: [master]
 
 jobs:
   deploy_source:
@@ -51,9 +51,7 @@ jobs:
       - name: Test code and run formatter
         run: |
           source env/bin/activate
-          pytest
-          isort app/
-          autopep8 --in-place --recursive app/
+          tox
         env:
           ENV: "test"
           DB_USER: postgres
@@ -69,6 +67,7 @@ jobs:
           files: |
             app/**/*.py
       - name: Extract branch name
+        if: steps.verify-changed-files.outputs.files_changed == 'true'
         shell: bash
         run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
         id: extract_branch
@@ -80,3 +79,11 @@ jobs:
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           git commit -am "Automated changes for formatting purposes"
           git push origin ${{ steps.extract_branch.outputs.branch }}
+      - name: Rollback Release
+        if: failure()
+        uses: author/action-rollback@stable
+        with:
+          #  If the release does not exist but the tag does, setting this to true will remove the tag.
+          delete_orphan_tag: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
