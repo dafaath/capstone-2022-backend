@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from typing import Union
 
 import bcrypt
 from fastapi import HTTPException
@@ -63,7 +64,7 @@ def create_refresh_token(session: UserSession, user: User):
     return refresh_token
 
 
-def check_jwt_result(result: RefreshTokenDecrypt | AccessTokenDecrypt):
+def check_jwt_result(result: Union[RefreshTokenDecrypt, AccessTokenDecrypt]):
     token_type = ""
     if(isinstance(result, RefreshTokenDecrypt)):
         token_type = "Refresh"

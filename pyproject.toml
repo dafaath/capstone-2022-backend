@@ -20,7 +20,7 @@ env = [
 [tool.tox]
 legacy_tox_ini = """
 [tox]
-envlist = python3.9,python3.10
+envlist = py39, py310
 isolated_build = True
 
 [testenv]

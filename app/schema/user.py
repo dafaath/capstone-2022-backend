@@ -51,15 +51,15 @@ class GetOneUserResponse(ResponseTemplate):
 
 
 class UpdateUserBody(AutoCamelModel):
-    email: EmailStr | None = Field(None, example="example@gmail.com",
-                                   description="User email")
-    phone: str | None = Field(
+    email: Optional[EmailStr] = Field(None, example="example@gmail.com",
+                                      description="User email")
+    phone: Optional[str] = Field(
         None,
         example="+6281390823143",
         regex=r"\+[\d]{8,15}",
         description="User telephone number with country code in front, with a 8-15 character length")
-    current_password: str | None = Field(None, description="The user current password")
-    new_password: str | None = Field(None, description="The user new password")
+    current_password: Optional[str] = Field(None, description="The user current password")
+    new_password: Optional[str] = Field(None, description="The user new password")
 
 
 class UpdateUserResponse(ResponseTemplate):
