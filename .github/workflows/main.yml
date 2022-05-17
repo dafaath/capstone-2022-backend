@@ -1,0 +1,28 @@
+name: Deploy this application
+on: 
+  push:
+    branches: [master]
+
+jobs:
+  deploy_source:
+    name: Deploying to server and update postman API docs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-python@v3
+        with:
+          python-version: '3.10' # Version range or exact version of a Python version to use, using SemVer's version range syntax
+      - uses: actions/setup-node@master
+        with:
+          node-version: 16
+      - name: Create .env file
+        run: |
+          echo "$PROD_ENV_FILE" > .env
+        env:
+          PROD_ENV_FILE: '${{secrets.PRODUCTION_ENV}}'
+          GOOGLE_CLOUD_KEY_DATA: '${{secrets.GOOGLE_CLOUD_KEY}}'
+      - name: Install npm on postman folder and sync api
+        run: |
+          cd postman
+          npm install 
+          node index.js

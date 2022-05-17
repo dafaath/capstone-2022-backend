@@ -14,7 +14,7 @@ from config import DefaultSettings, RunningENV
 
 async def generate_database_test(settings: DefaultSettings):
     # ! Danger this will drop the database, only do it in testing !
-    if settings.env == RunningENV.TEST:
+    if settings.env == RunningENV.TEST.value:
         logger.info("Dropping database...")
         Base.metadata.drop_all(bind=engine)
         logger.info("Creating database...")
@@ -51,7 +51,7 @@ async def create_account(settings: DefaultSettings, db: Session, type: str):
 
 async def create_test_account_if_not_exists(settings: DefaultSettings, db: Session):
     # If settings is production, don't create it
-    if settings.env == RunningENV.PRODUCTION:
+    if settings.env != RunningENV.TEST.value and settings.env != RunningENV.DEVELOPMENT.value:
         return
 
     user = await create_account(settings, db, "test")
@@ -60,7 +60,7 @@ async def create_test_account_if_not_exists(settings: DefaultSettings, db: Sessi
 
 async def create_admin_account_if_not_exists(settings: DefaultSettings, db: Session):
     # If settings is production, don't create it
-    if settings.env == RunningENV.PRODUCTION:
+    if settings.env != RunningENV.TEST.value and settings.env != RunningENV.DEVELOPMENT.value:
         return
 
     user = await create_account(settings, db, "admin")
