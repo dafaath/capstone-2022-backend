@@ -20,6 +20,7 @@ const openApiPath = path.join(__dirname, '..', 'openapi.json');
   try {
     console.info("Generating postman api and collection from " + openApiPath)
     const localAPI = await SwaggerParser.parse(openApiPath);
+    console.info(localAPI)
 
     // Obtain a remote representation of the API
     // defined by the local OpenAPI specification.

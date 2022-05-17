@@ -13,7 +13,7 @@ class Postman {
     this.config.workspaceId = workspaceId;
   }
 
-  async request(method = 'get', path, params = null, data = null) {
+  async request(method = 'get', path, params = undefined, data = undefined) {
     try {
       const options = {
         method,
@@ -22,7 +22,7 @@ class Postman {
           'Content-Type': 'application/json',
           'X-API-Key': this.config.apiKey
         },
-        data: data ? JSON.stringify(data) : null
+        data: data ? data : undefined
       };
 
       const result = await axios(options);
@@ -69,6 +69,7 @@ class Postman {
     }, {
       api: data
     });
+    return api
   }
 
   async updateAPI(apiId, data = {}) {
@@ -149,11 +150,6 @@ class Postman {
 
   async syncCollection(apiId, apiVersionId, entityId) {
     const data = await this.put(`apis/${apiId}/versions/${apiVersionId}/documentation/${entityId}/syncWithSchema`, null, null);
-    return data;
-  }
-
-  async deleteCollection(collection_uid) {
-    const data = await this.delete(`collections/${collection_uid}`, null);
     return data;
   }
 }
