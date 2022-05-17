@@ -1,5 +1,5 @@
 name: Deploy this application
-on: 
+on:
   push:
     branches: [master]
 
@@ -9,9 +9,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
-      - uses: actions/setup-python@v3
+      - uses: actions/setup-python@master
         with:
-          python-version: '3.10' # Version range or exact version of a Python version to use, using SemVer's version range syntax
+          python-version: "3.10" # Version range or exact version of a Python version to use, using SemVer's version range syntax
       - uses: actions/setup-node@master
         with:
           node-version: 16
@@ -19,10 +19,30 @@ jobs:
         run: |
           echo "$PROD_ENV_FILE" > .env
         env:
-          PROD_ENV_FILE: '${{secrets.PRODUCTION_ENV}}'
-          GOOGLE_CLOUD_KEY_DATA: '${{secrets.GOOGLE_CLOUD_KEY}}'
+          PROD_ENV_FILE: "${{secrets.PRODUCTION_ENV}}"
+          GOOGLE_CLOUD_KEY_DATA: "${{secrets.GOOGLE_CLOUD_KEY}}"
       - name: Install npm on postman folder and sync api
         run: |
           cd postman
           npm install 
           node index.js
+      - name: Install python dependencies
+        run: |
+          pip install --upgrade pip
+          python -m venv env
+          source env/bin/activate
+          pip install -r requirements.txt
+      - name: Test code and run formatter
+        run: |
+          tox
+      - name: Check for modified files
+        id: git-check
+        run: echo ::set-output name=modified::$(if git diff-index --quiet HEAD --; then echo "false"; else echo "true"; fi)
+      - name: Push changes
+        if: steps.git-check.outputs.modified == 'true'
+        run: |
+          git config --global user.name 'Muhammad Dafa Athaullah'
+          git config --global user.email 'dafaathaullah123@gmail.com'
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          git commit -am "Automated changes for formatting purposes"
+          git push
