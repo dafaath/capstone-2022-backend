@@ -34,6 +34,7 @@ jobs:
       - name: Create .env file
         run: |
           echo "$PROD_ENV_FILE" > .env
+          echo "$GOOGLE_CLOUD_KEY_DATA" > service-account.json
         env:
           PROD_ENV_FILE: "${{secrets.PRODUCTION_ENV}}"
           GOOGLE_CLOUD_KEY_DATA: "${{secrets.GOOGLE_CLOUD_KEY}}"
@@ -48,9 +49,9 @@ jobs:
         run: pipenv install
       - name: Test code and run formatter
         run: |
-          pipenv isort
-          pipenv format
-          pipenv test
+          pipenv run isort
+          pipenv run format
+          pipenv run test
         env:
           ENV: "test"
           DB_USER: postgres

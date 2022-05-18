@@ -293,3 +293,6 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Google service account
+service-account.json
