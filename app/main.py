@@ -4,7 +4,7 @@ from fastapi import Depends, FastAPI
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.routes import authentication, example, user
+from app.routes import authentication, diary, example, user
 from app.schema.default_response import ResponseTemplate
 from app.utils.startup import (create_admin_account_if_not_exists,
                                generate_database_test, write_openapi_file)
@@ -13,6 +13,7 @@ from config import DefaultSettings, get_settings
 app = FastAPI(title="emodiary API", version="1.0.0")
 app.include_router(authentication.router)
 app.include_router(user.router)
+app.include_router(diary.router)
 app.include_router(example.router)
 
 

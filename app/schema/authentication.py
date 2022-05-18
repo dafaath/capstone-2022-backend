@@ -6,7 +6,7 @@ from pydantic import BaseModel, EmailStr, Field
 
 from app.schema.default_response import ResponseTemplate
 from app.schema.user import UserResponse
-from app.utils.schema import AutoCamelModel, to_camel
+from app.utils.schema import TemplateModel, to_camel
 from config import get_settings
 
 settings = get_settings()
@@ -34,20 +34,20 @@ class AccessToken(UserResponse):
     exp: datetime
 
 
-class RefreshToken(AutoCamelModel):
+class RefreshToken(TemplateModel):
     session_id: str
     user_id: str
     iat: datetime
 
 
-class RefreshTokenBody(AutoCamelModel):
+class RefreshTokenBody(TemplateModel):
     refresh_token: str = Field(
         ...,
         example="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uX2lkIjoiOWEwYmFlZDMtMzMwMy00MjczLTkzYjYtM2NiMjUzOGI1MjdjIiwidXNlcl9pZCI6IjM3YjVlNjU4LWM3NjUtNGYyZC1hNWEwLWJjNjgwNWZjY2ZhYiIsImlhdCI6MTY1MjE2MjIyN30.EXkeCHuqA93MSTbkAoNJU06qsbQcoBRPnH6RZYEOYvo",
         description="Refresh token gained from response after login")
 
 
-class RefreshTokenResponseData(AutoCamelModel):
+class RefreshTokenResponseData(TemplateModel):
     access_token: str = Field(
         ...,
         example="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImYzZjYxZWQ4LTNhMDYtNDhlNi05NGE4LTkzZTU2ZDg0YjI5NiIsImVtYWlsIjoiZGFmYUBnbWFpbC5jb20iLCJwaG9uZSI6Iis2MjgxMzI5MDgyMzE0czEiLCJpc19hY3RpdmUiOnRydWUsImV4cCI6MTY1MjEwMjk5MCwiaWF0IjoxNjUyMTAyMDkwfQ.SyhCaUvvvB7jMk5T7dEsGScHy6Pe5FqZhIkBEnJggT0",
@@ -58,11 +58,11 @@ class RefreshTokenResponse(ResponseTemplate):
     data: RefreshTokenResponseData
 
 
-class LoginGoogleBody(AutoCamelModel):
+class LoginGoogleBody(TemplateModel):
     token: str = Path(..., description="Google jwt token after sign in with google")
 
 
-class GoogleJWTPayload(AutoCamelModel):
+class GoogleJWTPayload(TemplateModel):
     iss: str
     nbf: int
     aud: str

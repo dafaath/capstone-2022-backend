@@ -61,14 +61,12 @@ async def login_google(
     db: Session = Depends(get_db),
     user_agent: str = Header(..., example="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.54 Safari/537.36", description="The sender user agent"),
 ):
-    print(credential)
     payload = validate_google_token(credential)
     user = get_user_by_email(payload.email, db)
     if user is None:
         # User not registered in database
         user = register_google_user(payload.email, db)
 
-    print(user.__dict__)
     access_token = create_access_token(
         UserResponse.from_orm(user))
     session = create_session(user, user_agent, db)

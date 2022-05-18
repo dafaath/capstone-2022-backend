@@ -2,16 +2,16 @@ from doctest import Example
 
 from pydantic import Field
 
-from app.utils.schema import AutoCamelModel
+from app.utils.schema import TemplateModel
 
 
-class ResponseTemplate(AutoCamelModel):
+class ResponseTemplate(TemplateModel):
     message: str = Field(example="Server is ok",
                          description="Message from server")
     data: dict = Field(None, description="Response data")
 
 
-class MyHTTPError(AutoCamelModel):
+class MyHTTPError(TemplateModel):
     detail: str = Field(...,
                         description="The reason for the error", example="Error reasons")
 

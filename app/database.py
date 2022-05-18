@@ -1,5 +1,6 @@
 import os
 from google.cloud import firestore
+from google.oauth2 import service_account
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -17,15 +18,16 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
 
-# The `project` parameter is optional and represents which project the client
-# will act on behalf of. If not supplied, the client falls back to the default
-# project inferred from the environment.
+
+credentials_file = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                                '..', settings.google_application_credentials)
+credentials = service_account.Credentials.from_service_account_file(
+    credentials_file)
+project = settings.google_cloud_project_id
 
 
 def get_fs():
-    credentials = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                               '..', settings.google_application_credentials)
-    fs = firestore.Client(project=settings.google_cloud_project_id, credentials=credentials)
+    fs = firestore.Client(project=project, credentials=credentials)
     try:
         yield fs
     finally:

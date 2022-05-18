@@ -31,7 +31,7 @@ class DefaultSettings(BaseSettings):
     jwt_access_token_expiry_minutes: int = 60
     jwt_algorithm: str = "HS256"
     google_client_id: str = "137562844094-8v9i3tc76635h2hrm7kk0f2dg7sodnkk.apps.googleusercontent.com"
-    google_cloud_project_id: str = "emodiary-capstone"
+    google_cloud_project_id: str = "emodiary-bangkit"
     google_application_credentials = "service-account.json"  # Google cloud service account
 
     class Config:
@@ -45,6 +45,8 @@ class DevSettings(DefaultSettings):
 class TestSettings(DefaultSettings):
     env: RunningENV = RunningENV.TEST
     db_name: str = "test_emodiary"
+    google_cloud_project_id: str = "emodiary-test"
+    google_application_credentials = "service-account-test.json"  # Google cloud service account
 
 
 class ProdSettings(DefaultSettings):

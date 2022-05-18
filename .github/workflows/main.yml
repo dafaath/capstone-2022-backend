@@ -35,9 +35,11 @@ jobs:
         run: |
           echo "$PROD_ENV_FILE" > .env
           echo "$GOOGLE_CLOUD_KEY_DATA" > service-account.json
+          echo "$GOOGLE_CLOUD_KEY_DATA_TEST" > service-account-test.json
         env:
           PROD_ENV_FILE: "${{secrets.PRODUCTION_ENV}}"
-          GOOGLE_CLOUD_KEY_DATA: "${{secrets.GOOGLE_CLOUD_KEY}}"
+          GOOGLE_CLOUD_KEY_DATA: "${{secrets.GOOGLE_CLOUD_KEY_DATA}}"
+          GOOGLE_CLOUD_KEY_DATA_TEST: "${{secrets.GOOGLE_CLOUD_KEY_DATA_TEST}}"
       - name: Install npm on postman folder and sync api
         run: |
           cd postman

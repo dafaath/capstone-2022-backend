@@ -6,10 +6,10 @@ from pydantic import EmailStr, Field, validator
 
 from app.models import UserRole
 from app.schema.default_response import ResponseTemplate
-from app.utils.schema import AutoCamelModel
+from app.utils.schema import TemplateModel
 
 
-class RegisterBase(AutoCamelModel):
+class RegisterBase(TemplateModel):
     email: EmailStr = Field(..., example="example@gmail.com",
                             description="User email")
     phone: str = Field(..., example="+6281390823143",
@@ -30,10 +30,10 @@ class UserResponse(RegisterBase):
         description="User telephone number with country code in front, with a 8-15 character length")
     is_active: bool = Field(..., description="Is user is an active user or not")
     photo: str = Field(..., description="The path to the user photo profile")
-    time_created: datetime = Field(..., description="The time this object is created",
+    time_created: datetime = Field(..., description="The time this object is created, represented in ISO 8601 format",
                                    example="2022-05-12T14:30:28.304902+07:00")
     time_updated: datetime = Field(...,
-                                   description="The time this object is last updated",
+                                   description="The time this object is last updated, represented in ISO 8601 format ",
                                    example="2022-05-12T14:30:28.304902+07:00")
     role: UserRole = Field(..., description=f"The user role, consist of {UserRole}.")
 
@@ -50,7 +50,7 @@ class GetOneUserResponse(ResponseTemplate):
     data: UserResponse
 
 
-class UpdateUserBody(AutoCamelModel):
+class UpdateUserBody(TemplateModel):
     email: Optional[EmailStr] = Field(None, example="example@gmail.com",
                                       description="User email")
     phone: Optional[str] = Field(

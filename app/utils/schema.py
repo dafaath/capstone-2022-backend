@@ -1,5 +1,5 @@
 from humps import camelize
-from pydantic import BaseConfig, BaseModel
+from pydantic import BaseConfig, BaseModel, Extra
 
 
 def to_camel(string):
@@ -12,7 +12,7 @@ class TemplateConfig(BaseConfig):
     orm_mode = True
 
 
-class AutoCamelModel(BaseModel):
+class TemplateModel(BaseModel):
     class Config:
         alias_generator = to_camel
         allow_population_by_field_name = True

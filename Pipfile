@@ -62,6 +62,7 @@ Mako = "==1.2.0"
 MarkupSafe = "==2.1.1"
 SQLAlchemy = "==1.4.36"
 google-cloud-firestore = "*"
+essential-generators = "*"
 
 [dev-packages]
 
@@ -69,7 +70,7 @@ google-cloud-firestore = "*"
 dev = "python start.py"
 test = "pytest"
 isort = "isort app/"
-format = "autopep8 --in-place --recursive app/"
+format = "autopep8 --in-place --recursive --verbose app/"
 
 [requires]
 python_version = "3.9"
