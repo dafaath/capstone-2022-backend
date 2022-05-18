@@ -48,7 +48,6 @@ jobs:
         run: pipenv install
       - name: Test code and run formatter
         run: |
-          pipenv shell
           pipenv isort
           pipenv format
           pipenv test
