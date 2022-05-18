@@ -1,10 +1,10 @@
+import os
+from google.cloud import firestore
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 from config import get_settings
-from google.cloud import firestore
-
 
 settings = get_settings()
 SQLALCHEMY_DATABASE_URL = f"postgresql://{settings.db_user}:{settings.db_pass}@{settings.db_host}:{settings.db_port}/{settings.db_name}"
@@ -20,7 +20,6 @@ Base = declarative_base()
 # The `project` parameter is optional and represents which project the client
 # will act on behalf of. If not supplied, the client falls back to the default
 # project inferred from the environment.
-import os
 
 
 def get_fs():
