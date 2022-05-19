@@ -295,4 +295,5 @@ dist
 .pnp.*
 
 # Google service account
+service-account-test.json
 service-account.json
