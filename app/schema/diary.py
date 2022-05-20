@@ -1,9 +1,7 @@
 from datetime import datetime
-from doctest import Example
 from typing import Optional
-from uuid import UUID
 
-from pydantic import EmailStr, Field, validator
+from pydantic import Field
 
 from app.schema.default_response import ResponseTemplate
 from app.schema.user import UserResponse
@@ -11,6 +9,7 @@ from app.utils.schema import TemplateModel
 
 
 class BaseDiary(TemplateModel):
+    title: str = Field(..., description="The diary title")
     content: str = Field(..., description="The diary content")
 
 
@@ -44,11 +43,11 @@ class DiaryDatabase(DiaryResponseBase):
 
 
 class CreateDiaryResponse(ResponseTemplate):
-    data: DiaryResponseWithUser
+    data: DiaryResponseWithoutUser
 
 
 class CreateDiaryResponse(ResponseTemplate):
-    data: DiaryResponseWithUser
+    data: DiaryResponseWithoutUser
 
 
 class GetAllDiaryResponse(ResponseTemplate):
@@ -56,16 +55,17 @@ class GetAllDiaryResponse(ResponseTemplate):
 
 
 class GetOneDiaryResponse(ResponseTemplate):
-    data: DiaryResponseWithUser
+    data: DiaryResponseWithoutUser
 
 
 class UpdateDiaryBody(CreateDiaryBody):
-    pass
+    title: Optional[str] = Field(None, description="The diary title")
+    content: Optional[str] = Field(None, description="The diary content")
 
 
 class UpdateDiaryResponse(ResponseTemplate):
-    data: DiaryResponseWithUser
+    data: DiaryResponseWithoutUser
 
 
 class DeleteDiaryResponse(ResponseTemplate):
-    data: DiaryResponseWithUser
+    data: DiaryResponseWithoutUser

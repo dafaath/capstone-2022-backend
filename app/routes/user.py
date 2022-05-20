@@ -25,7 +25,7 @@ settings = get_settings()
 
 
 @ router.post("/", description="Register new user", status_code=201, tags=["Authentication"],
-              response_model=RegisterResponse, responses={409: error_reason("Email or phone is already exists in db")})
+              response_model=RegisterResponse, responses={409: error_reason("Email is already exists in db")})
 def register(body: RegisterBody, db: Session = Depends(get_db)):
     saved_user = register_user(body, db)
     response = RegisterResponse(

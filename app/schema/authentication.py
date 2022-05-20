@@ -24,6 +24,7 @@ class LoginResponse(BaseModel):
     token_type: str = Field(..., example="bearer")
     expires_in: int = Field(..., description="Time until access token expires (in seconds)", example=3600)
     scope: Optional[str] = Field(None, description="Authorize list of actions", example="create")
+    user: UserResponse = Field(..., description="The user who logged in")
 
 
 class AccessToken(UserResponse):

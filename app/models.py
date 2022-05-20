@@ -5,9 +5,13 @@ from uuid import uuid4
 from sqlalchemy import (Boolean, Column, DateTime, Enum, ForeignKey, Integer,
                         String)
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 
 from app.database import Base
+from config import get_settings
+
+settings = get_settings()
 
 
 class UserRole(str, enum.Enum):
@@ -23,8 +27,9 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     password = Column(String, nullable=True)
     phone = Column(String, index=True, unique=True, nullable=True)
+    fullname = Column(String, nullable=False)
     is_active = Column(Boolean, default=True, nullable=False)
-    photo = Column(String, default="default.png", nullable=False)
+    _photo = Column(String, default="default.png", nullable=False)
     role = Column(Enum(UserRole), nullable=False, default=UserRole.REGULAR)
     time_created = Column(DateTime(timezone=True), default=datetime.datetime.utcnow, nullable=False)
     time_updated = Column(
@@ -34,6 +39,14 @@ class User(Base):
         onupdate=datetime.datetime.utcnow,
         nullable=False)
     sessions = relationship("Session", back_populates="user", cascade="all, delete")
+
+    @hybrid_property
+    def photo(self):
+        return settings.static_file_routes + self._photo
+
+    @photo.setter
+    def photo(self, value):
+        self._photo = value
 
 
 class Session(Base):

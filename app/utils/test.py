@@ -1,26 +1,18 @@
 import random
 import string
 
-from google.cloud.firestore import Client
 from requests import Response
 
-USER_RESPONSE_KEYS = ["id", "email", "phone", "isActive", "timeCreated", "photo", "timeUpdated", "role"]
+USER_RESPONSE_KEYS = ["id", "email", "phone", "isActive", "timeCreated", "photo", "timeUpdated", "role", "fullname"]
 DIARY_RESPONSE_KEYS = [
     "id",
+    "title",
     "content",
     "translatedContent",
     "emotion",
     "timeCreated",
     "timeUpdated",
-    "user",
     "userId"]
-
-
-def delete_all_collection(fs: Client):
-    docs = fs.collection('diary').stream()
-    for doc in docs:
-        print(f'Deleting doc {doc.id} => {doc.to_dict()}')
-        doc.reference.delete()
 
 
 def have_error_detail(response: Response):
@@ -62,7 +54,7 @@ def dict_have_correct_properties(data: dict, keys: list[str]):
     assert supposed_keys == current_keys
 
 
-def have_not_undefined(response: Response, keys: list[str]):
+def have_no_undefined(response: Response, keys: list[str]):
     resp = response.json()
     for k in keys:
         assert resp["data"][k]

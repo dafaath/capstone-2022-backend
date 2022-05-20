@@ -2,10 +2,10 @@ from fastapi.testclient import TestClient
 
 from app.main import app
 from app.utils.jwt import decrypt_access_token, decrypt_refresh_token
-from app.utils.test import (USER_RESPONSE_KEYS, have_base_templates,
-                            have_correct_data_properties,
+from app.utils.test import (USER_RESPONSE_KEYS, dict_have_correct_properties,
+                            have_base_templates, have_correct_data_properties,
                             have_correct_status_and_message,
-                            have_not_undefined)
+                            have_no_undefined)
 from config import RunningENV, get_settings
 
 client = TestClient(app)
@@ -16,6 +16,7 @@ async def test_register(test_db):
     response = client.post("/users/", json={
         "email": "dafa@gmail.com",
         "phone": "+62813290823141",
+        "fullname": "Muhammad Dafa",
         "password": "123"
     })
     resp = response.json()
@@ -25,7 +26,6 @@ async def test_register(test_db):
     have_correct_status_and_message(response, 201, "Registration successful")
     have_correct_data_properties(
         response, USER_RESPONSE_KEYS)
-    have_not_undefined(response, USER_RESPONSE_KEYS)
 
 
 def check_access_token(result):
@@ -34,7 +34,6 @@ def check_access_token(result):
     assert result.payload is not None
     assert result.payload.id
     assert result.payload.email
-    assert result.payload.phone
     assert result.payload.is_active
     assert result.payload.time_created
     assert result.payload.time_updated
@@ -57,12 +56,17 @@ async def test_login(test_db):
     print(resp)
     assert response.status_code == 200
 
-    supposed_keys = set(["access_token", "refresh_token", "token_type", "expires_in", "scope"])
+    supposed_keys = set(["access_token", "refresh_token", "token_type", "expires_in", "scope", "user"])
     current_keys = set(resp.keys())
     assert supposed_keys == current_keys
     # Ensure valid token
     result = decrypt_access_token(resp['access_token'])
     check_access_token(result)
+
+    dict_have_correct_properties(resp["user"], USER_RESPONSE_KEYS)
+    payload_dict = result.payload.dict(by_alias=True)
+    for k, v in resp["user"].items():
+        assert resp["user"][k] == payload_dict[k]
 
     result = decrypt_refresh_token(resp['refresh_token'])
     check_refresh_token(result)

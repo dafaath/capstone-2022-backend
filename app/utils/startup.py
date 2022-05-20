@@ -31,12 +31,12 @@ async def create_account(settings: DefaultSettings, db: Session, type: str):
     else:
         data = RegisterBody(
             email=settings.test_account_email,
-            phone=settings.test_account_phone_number,
+            fullname="Test User",
             password=settings.test_account_password)
         if type.lower() == "admin":
             data = RegisterBody(
                 email=settings.admin_email,
-                phone=settings.admin_phone_number,
+                fullname="admin bin admin",
                 password=settings.admin_password)
 
         user_role = UserRole.REGULAR
