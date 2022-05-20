@@ -45,7 +45,8 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(),
         access_token=access_token,
         refresh_token=refresh_token,
         token_type="bearer",
-        expires_in=settings.jwt_access_token_expiry_minutes * 60)
+        expires_in=settings.jwt_access_token_expiry_minutes * 60,
+        user=UserResponse.from_orm(user))
     return response
 
 

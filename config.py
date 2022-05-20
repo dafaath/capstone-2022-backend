@@ -34,6 +34,7 @@ class DefaultSettings(BaseSettings):
     google_client_id: str = "137562844094-8v9i3tc76635h2hrm7kk0f2dg7sodnkk.apps.googleusercontent.com"
     google_cloud_project_id: str = "emodiary-bangkit"
     google_application_credentials = "service-account.json"  # Google cloud service account
+    static_file_routes: str = ""
 
     class Config:
         use_enum_values = True

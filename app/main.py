@@ -1,6 +1,7 @@
 import asyncio
 
 from fastapi import Depends, FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -15,6 +16,20 @@ app.include_router(authentication.router)
 app.include_router(user.router)
 app.include_router(diary.router)
 app.include_router(example.router)
+
+
+# CORS
+origins = [
+    "*"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.on_event("startup")

@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
-from pydantic import EmailStr, Field, validator
+from pydantic import EmailStr, Field
 
 from app.models import UserRole
 from app.schema.default_response import ResponseTemplate
@@ -12,9 +12,7 @@ from app.utils.schema import TemplateModel
 class RegisterBase(TemplateModel):
     email: EmailStr = Field(..., example="example@gmail.com",
                             description="User email")
-    phone: str = Field(..., example="+6281390823143",
-                       regex=r"\+[\d]{8,15}",
-                       description="User telephone number with country code in front, with a 8-15 character length")
+    fullname: str = Field(..., example="James Jones", description="User full name")
 
 
 class RegisterBody(RegisterBase):

@@ -13,16 +13,10 @@ def register_user(user: RegisterBody, db: Session, role: UserRole = UserRole.REG
     if email_exist:
         raise HTTPException(status_code=409, detail="Email is already exists")
 
-    phone_exist = db.query(User).filter(
-        User.phone == user.phone).first() is not None
-    if phone_exist:
-        raise HTTPException(
-            status_code=409, detail="Phone number is already exists")
-
     salt = bcrypt.gensalt()
     hashed_password = bcrypt.hashpw(user.password.encode('utf-8'), salt)
     db_user = User(
-        email=user.email, password=hashed_password.decode('utf-8'), phone=user.phone, role=role)
+        email=user.email, password=hashed_password.decode('utf-8'), fullname=user.fullname, role=role)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
