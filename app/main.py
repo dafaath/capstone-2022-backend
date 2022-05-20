@@ -7,7 +7,8 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.routes import authentication, diary, example, user
 from app.schema.default_response import ResponseTemplate
-from app.utils.startup import (create_admin_account_if_not_exists, create_test_account_if_not_exists,
+from app.utils.startup import (create_admin_account_if_not_exists,
+                               create_test_account_if_not_exists,
                                generate_database_test, write_openapi_file)
 from config import DefaultSettings, get_settings
 

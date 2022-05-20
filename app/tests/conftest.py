@@ -8,9 +8,9 @@ from app.database import Base, engine, get_db, get_fs
 from app.schema.user import UserResponse
 from app.services.authentication import create_access_token
 from app.services.user import get_user_by_email
+from app.utils.conftest_utils import delete_all_collection
 from app.utils.startup import (create_admin_account_if_not_exists,
                                create_test_account_if_not_exists)
-from app.utils.conftest_utils import delete_all_collection
 from config import DefaultSettings, get_settings
 
 pytest.register_assert_rewrite("app.utils.test")

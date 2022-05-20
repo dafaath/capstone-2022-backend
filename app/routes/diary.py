@@ -17,8 +17,8 @@ from app.schema.diary import (CreateDiaryBody, CreateDiaryResponse,
                               UpdateDiaryResponse)
 from app.schema.user import UserResponse
 from app.services.diary import (create_diary, delete_diary, get_all_diary,
-                                get_diary_by_id, get_diary_by_id_or_error, get_user_diary,
-                                update_diary)
+                                get_diary_by_id, get_diary_by_id_or_error,
+                                get_user_diary, update_diary)
 from app.services.user import get_user_by_id_or_error
 from app.utils.depedencies import get_admin, get_current_user
 from config import get_settings

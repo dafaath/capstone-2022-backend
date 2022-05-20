@@ -4,8 +4,7 @@ from app.main import app
 from app.utils.jwt import decrypt_access_token, decrypt_refresh_token
 from app.utils.test import (USER_RESPONSE_KEYS, dict_have_correct_properties,
                             have_base_templates, have_correct_data_properties,
-                            have_correct_status_and_message,
-                            have_no_undefined)
+                            have_correct_status_and_message, have_no_undefined)
 from config import RunningENV, get_settings
 
 client = TestClient(app)
