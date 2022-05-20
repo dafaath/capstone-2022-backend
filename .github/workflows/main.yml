@@ -83,7 +83,7 @@ jobs:
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           git commit -am "Automated changes for formatting purposes"
           git push origin ${{ steps.extract_branch.outputs.branch }}
-      - name: Authentication to google
+      - name: Authentication to google service account
         id: "auth"
         uses: "google-github-actions/auth@v0"
         with:
