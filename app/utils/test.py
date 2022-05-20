@@ -6,12 +6,12 @@ from requests import Response
 USER_RESPONSE_KEYS = ["id", "email", "phone", "isActive", "timeCreated", "photo", "timeUpdated", "role", "fullname"]
 DIARY_RESPONSE_KEYS = [
     "id",
+    "title",
     "content",
     "translatedContent",
     "emotion",
     "timeCreated",
     "timeUpdated",
-    "user",
     "userId"]
 
 

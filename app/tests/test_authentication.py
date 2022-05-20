@@ -63,10 +63,13 @@ async def test_login(test_db):
     result = decrypt_access_token(resp['access_token'])
     check_access_token(result)
 
+    dict_have_correct_properties(resp["user"], USER_RESPONSE_KEYS)
+    payload_dict = result.payload.dict(by_alias=True)
+    for k, v in resp["user"].items():
+        assert resp["user"][k] == payload_dict[k]
+
     result = decrypt_refresh_token(resp['refresh_token'])
     check_refresh_token(result)
-
-    dict_have_correct_properties(resp["user"], USER_RESPONSE_KEYS)
 
     common_var["refreshToken"] = resp['refresh_token']
     common_var["accessToken"] = resp['access_token']

@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.routes import authentication, diary, example, user
 from app.schema.default_response import ResponseTemplate
-from app.utils.startup import (create_admin_account_if_not_exists,
+from app.utils.startup import (create_admin_account_if_not_exists, create_test_account_if_not_exists,
                                generate_database_test, write_openapi_file)
 from config import DefaultSettings, get_settings
 
@@ -38,6 +38,7 @@ async def startup():
     settings: DefaultSettings = get_settings()
     asyncio.create_task(generate_database_test(settings))
     asyncio.create_task(create_admin_account_if_not_exists(settings, db))
+    asyncio.create_task(create_test_account_if_not_exists(settings, db))
     asyncio.create_task(write_openapi_file(settings, app.openapi()))
 
 

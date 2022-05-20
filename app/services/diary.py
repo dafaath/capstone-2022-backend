@@ -18,6 +18,7 @@ def create_diary(input: CreateDiaryBody, user: User, fs: Client):
     time_updated = datetime.now()
     data = DiaryDatabase(
         id=id,
+        title=input.title,
         content=input.content,
         translated_content=input.content,
         emotion="happy",
@@ -28,8 +29,24 @@ def create_diary(input: CreateDiaryBody, user: User, fs: Client):
     return data
 
 
-def get_all_diary(fs: Client):
-    documents = fs.collection('diary').get()
+def get_all_diary(page: int, size: int, fs: Client):
+    ref = fs.collection('diary').order_by("user_id").order_by(
+        "time_created", "DESCENDING")
+    if page and size:
+        offset = (page - 1) * size
+        ref = ref.limit(size).offset(offset)
+
+    documents = ref.get()
+    diaries = [document_to_diary(docs) for docs in documents if document_to_diary(docs) is not None]
+    return diaries
+
+
+def get_user_diary(page: int, size: int, user_id: str, fs: Client):
+    ref = fs.collection('diary').where("user_id", "==", user_id).order_by("time_created", "DESCENDING")
+    if page and size:
+        offset = (page - 1) * size
+        ref = ref.limit(size).offset(offset)
+    documents = ref.get()
     diaries = [document_to_diary(docs) for docs in documents if document_to_diary(docs) is not None]
     return diaries
 
@@ -64,7 +81,7 @@ def update_diary(diary: DiaryDatabase, body: UpdateDiaryBody, fs: Client):
     diary.time_updated = datetime.now()
 
     print(diary.dict())
-    fs.collection('diary').document(diary.id).update(diary.dict())
+    fs.collection('diary').document(diary.id).update(diary.dict(exclude={"id"}))
     return diary
 
 
