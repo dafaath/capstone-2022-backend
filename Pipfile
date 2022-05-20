@@ -63,6 +63,8 @@ MarkupSafe = "==2.1.1"
 SQLAlchemy = "==1.4.36"
 google-cloud-firestore = "*"
 essential-generators = "*"
+gunicorn = "*"
+python-dotenv = "*"
 
 [dev-packages]
 

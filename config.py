@@ -20,6 +20,7 @@ class DefaultSettings(BaseSettings):
     db_host: str = "localhost"
     db_port: int = 5432
     db_name: str = "emodiary"
+    db_unix_socket: str = ""
     admin_email: str = "admin@gmail.com"
     admin_password: str = "123"
     admin_phone_number: str = "+6281390494881"
@@ -51,6 +52,11 @@ class TestSettings(DefaultSettings):
 
 class ProdSettings(DefaultSettings):
     env: RunningENV = RunningENV.PRODUCTION
+
+    class Config:
+        env_file = 'prod.env'
+        env_file_encoding = 'utf-8'
+        use_enum_values = True
 
 
 @lru_cache()

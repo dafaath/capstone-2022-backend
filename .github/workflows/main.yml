@@ -33,10 +33,12 @@ jobs:
           node-version: 16
       - name: Create .env file
         run: |
-          echo "$PROD_ENV_FILE" > .env
+          echo "$REGULAR_ENV_FILE" > .env
+          echo "$PROD_ENV_FILE" > prod.env
           echo "$GOOGLE_CLOUD_KEY_DATA" > service-account.json
           echo "$GOOGLE_CLOUD_KEY_DATA_TEST" > service-account-test.json
         env:
+          REGULAR_ENV_FILE: "${{secrets.REGULAR_ENV}}"
           PROD_ENV_FILE: "${{secrets.PRODUCTION_ENV}}"
           GOOGLE_CLOUD_KEY_DATA: "${{secrets.GOOGLE_CLOUD_KEY_DATA}}"
           GOOGLE_CLOUD_KEY_DATA_TEST: "${{secrets.GOOGLE_CLOUD_KEY_DATA_TEST}}"
@@ -81,3 +83,13 @@ jobs:
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           git commit -am "Automated changes for formatting purposes"
           git push origin ${{ steps.extract_branch.outputs.branch }}
+      - name: Authentication to google
+        id: "auth"
+        uses: "google-github-actions/auth@v0"
+        with:
+          credentials_json: "${{ secrets.GOOGLE_CLOUD_KEY_DATA_DEPLOY }}"
+      - name: Deploy to google app engine
+        id: "deploy"
+        uses: "google-github-actions/deploy-appengine@v0"
+        with:
+          project_id: "emodiary-bangkit"

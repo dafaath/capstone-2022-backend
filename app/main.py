@@ -23,7 +23,7 @@ async def startup():
     settings: DefaultSettings = get_settings()
     asyncio.create_task(generate_database_test(settings))
     asyncio.create_task(create_admin_account_if_not_exists(settings, db))
-    asyncio.create_task(write_openapi_file(app.openapi()))
+    asyncio.create_task(write_openapi_file(settings, app.openapi()))
 
 
 @app.get("/", tags=["Health Check"], status_code=200, response_model=ResponseTemplate)

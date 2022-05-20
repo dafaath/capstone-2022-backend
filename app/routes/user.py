@@ -1,4 +1,6 @@
 
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException, Path
 from pydantic import parse_obj_as
 from sqlalchemy.orm import Session
@@ -44,15 +46,15 @@ def get_many_user(current_user: AccessToken = Depends(get_admin), db: Session = 
 @ router.get("/{user_id}", description="Get users by id", status_code=200, response_model=GetOneUserResponse,
              responses={403: error_reason("The user id in bearer is not matching with path and the user is not admin")})
 def get_one_user(
-        user_id: str = Path(...,
-                            description="The user id in UUID format"),
+        user_id: UUID = Path(...,
+                             description="The user id in UUID format"),
         current_user: AccessToken = Depends(get_current_user),
         db: Session = Depends(get_db)):
-    if current_user.id != user_id and current_user.role != UserRole.ADMIN:
+    if current_user.id != str(user_id) and current_user.role != UserRole.ADMIN:
         raise HTTPException(403, "The user id in token and path is not matching",
                             headers={"WWW-Authenticate": "Bearer"})
 
-    user = get_user_by_id_or_error(user_id, db)
+    user = get_user_by_id_or_error(str(user_id), db)
     response = GetOneUserResponse(
         message="Successfully get user", data=UserResponse.from_orm(user))
     return response
@@ -62,15 +64,15 @@ def get_one_user(
                responses={403: error_reason("The user id in bearer is not matching with path and the user is not admin")})
 def update_user_route(
         body: UpdateUserBody,
-        user_id: str = Path(...,
-                            description="The user id in UUID format"),
+        user_id: UUID = Path(...,
+                             description="The user id in UUID format"),
         current_user: AccessToken = Depends(get_current_user),
         db: Session = Depends(get_db)):
-    if current_user.id != user_id and current_user.role != UserRole.ADMIN:
+    if current_user.id != str(user_id) and current_user.role != UserRole.ADMIN:
         raise HTTPException(403, "The user id in token and path is not matching",
                             headers={"WWW-Authenticate": "Bearer"})
 
-    user = get_user_by_id_or_error(user_id, db)
+    user = get_user_by_id_or_error(str(user_id), db)
     updated_user = update_user(user, body, db)
 
     response = UpdateUserResponse(
@@ -81,15 +83,15 @@ def update_user_route(
 @ router.delete("/{user_id}", description="Delete user data", status_code=200, response_model=DeleteUserResponse,
                 responses={403: error_reason("The user id in bearer is not matching with path and the user is not admin")})
 def delete_user_route(
-        user_id: str = Path(...,
-                            description="The user id in UUID format"),
+        user_id: UUID = Path(...,
+                             description="The user id in UUID format"),
         current_user: AccessToken = Depends(get_current_user),
         db: Session = Depends(get_db)):
-    if current_user.id != user_id and current_user.role != UserRole.ADMIN:
+    if current_user.id != str(user_id) and current_user.role != UserRole.ADMIN:
         raise HTTPException(403, "The user id in token and path is not matching",
                             headers={"WWW-Authenticate": "Bearer"})
 
-    user = get_user_by_id_or_error(user_id, db)
+    user = get_user_by_id_or_error(str(user_id), db)
     deleted_user = delete_user(user, db)
 
     response = DeleteUserResponse(

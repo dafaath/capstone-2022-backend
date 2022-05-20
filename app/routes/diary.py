@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException, Path
 from google.cloud.firestore import Client
 from pydantic import parse_obj_as
@@ -57,14 +59,14 @@ def get_all_diary_route(current_user: AccessToken = Depends(get_admin), fs: Clie
              response_model_exclude_unset=True,
              responses={403: error_reason("The user id in bearer is not matching with path and the user is not admin")})
 def get_one_diary_route(
-        diary_id: str = Path(...,
-                             description="The diary id in UUID format"),
+        diary_id: UUID = Path(...,
+                              description="The diary id in UUID format"),
         current_user: AccessToken = Depends(get_current_user),
         db: Session = Depends(get_db),
         fs: Client = Depends(get_fs)):
 
     user = get_user_by_id_or_error(current_user.id, db)
-    diary = get_diary_by_id_or_error(diary_id, fs)
+    diary = get_diary_by_id_or_error(str(diary_id), fs)
 
     if current_user.id != diary.user_id and current_user.role != UserRole.ADMIN:
         raise HTTPException(403, "You are not allowed do this action because you are not the owner of this diary.",
@@ -80,14 +82,14 @@ def get_one_diary_route(
                responses={403: error_reason("The user id in bearer is not matching with path and the user is not admin")})
 def update_diary_route(
         body: UpdateDiaryBody,
-        diary_id: str = Path(...,
-                             description="The diary id in UUID format"),
+        diary_id: UUID = Path(...,
+                              description="The diary id in UUID format"),
         current_user: AccessToken = Depends(get_current_user),
         db: Session = Depends(get_db),
         fs: Client = Depends(get_fs)):
 
     user = get_user_by_id_or_error(current_user.id, db)
-    diary = get_diary_by_id_or_error(diary_id, fs)
+    diary = get_diary_by_id_or_error(str(diary_id), fs)
 
     if current_user.id != diary.user_id and current_user.role != UserRole.ADMIN:
         raise HTTPException(403, "You are not allowed do this action because you are not the owner of this diary.",
@@ -104,14 +106,14 @@ def update_diary_route(
 @ router.delete("/{diary_id}", description="Delete diary data", status_code=200, response_model=DeleteDiaryResponse,
                 responses={403: error_reason("The user id in bearer is not matching with path and the user is not admin")})
 def delete_diary_route(
-        diary_id: str = Path(...,
-                             description="The diary id in UUID format"),
+        diary_id: UUID = Path(...,
+                              description="The diary id in UUID format"),
         current_user: AccessToken = Depends(get_current_user),
         db: Session = Depends(get_db),
         fs: Client = Depends(get_fs)):
 
     user = get_user_by_id_or_error(current_user.id, db)
-    diary = get_diary_by_id_or_error(diary_id, fs)
+    diary = get_diary_by_id_or_error(str(diary_id), fs)
 
     if current_user.id != diary.user_id and current_user.role != UserRole.ADMIN:
         raise HTTPException(403, "You are not allowed do this action because you are not the owner of this diary.",

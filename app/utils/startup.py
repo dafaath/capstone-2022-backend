@@ -44,34 +44,33 @@ async def create_account(settings: DefaultSettings, db: Session, type: str):
             user_role = UserRole.ADMIN
         user = register_user(data, db, user_role)
         logger.info(f"{type.capitalize()} user is created")
-    logger.info(
-        f"email={user.email}, password={settings.admin_password}, phone_number={user.phone}")
+
+    if settings.env == RunningENV.TEST.value or settings.env == RunningENV.DEVELOPMENT.value:
+        logger.info(
+            f"email={user.email}, password={settings.admin_password}, phone_number={user.phone}")
+
     return user
 
 
 async def create_test_account_if_not_exists(settings: DefaultSettings, db: Session):
-    # If settings is production, don't create it
-    if settings.env != RunningENV.TEST.value and settings.env != RunningENV.DEVELOPMENT.value:
-        return
-
     user = await create_account(settings, db, "test")
     return user
 
 
 async def create_admin_account_if_not_exists(settings: DefaultSettings, db: Session):
-    # If settings is production, don't create it
-    if settings.env != RunningENV.TEST.value and settings.env != RunningENV.DEVELOPMENT.value:
-        return
-
     user = await create_account(settings, db, "admin")
     return user
 
 
-async def write_openapi_file(openapi):
+async def write_openapi_file(settings: DefaultSettings, openapi):
+    # If settings is production, don't create it
+    if settings.env != RunningENV.TEST.value and settings.env != RunningENV.DEVELOPMENT.value:
+        return
+
     # Write API
     logger.info("Creating openapi file")
     filename = 'openapi.json'
-    full_path_filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', filename)
+    full_path_filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', filename)
     async with async_open(full_path_filename, 'w+') as afp:
         await afp.write(json.dumps(openapi))
-        logger.info("Finish creating openapi file")
+        logger.info("Finish creating openapi file to " + full_path_filename)
