@@ -50,6 +50,7 @@ async def test_change_user_photo(test_db, user_token):
     old_photo = test_user["photo"]
     for filename in filenames:
         full_path_filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'image', filename)
+        print(f"---filename = {full_path_filename}---")
         with open(full_path_filename, "rb") as f:
             response = client.post(
                 f"/users/{test_user_id}/photo",
