@@ -76,10 +76,10 @@ async def test_change_user_photo(test_db, user_token):
         try:
             # ensure old photo deleted
             print(old_photo)
-            request = urllib.request.Request(old_photo, method="GET")
-            with urllib.request.urlopen(request) as req:
-                print(req.status)
-                assert req.status != 200
+            request_old_photo = urllib.request.Request(old_photo, method="GET")
+            with urllib.request.urlopen(request_old_photo) as req_op:
+                print(req_op.status)
+                assert req_op.status == 404
             assert False
         except HTTPError as e:
             assert e.status == 404
@@ -87,10 +87,10 @@ async def test_change_user_photo(test_db, user_token):
 
         # can get new photo
         print(new_photo)
-        request = urllib.request.Request(new_photo, method="GET")
-        with urllib.request.urlopen(request) as req:
-            print(req.status)
-            assert req.status == 200
+        request_new_photo = urllib.request.Request(new_photo, method="GET")
+        with urllib.request.urlopen(request_new_photo) as req_np:
+            print(req_np.status)
+            assert req_np.status == 200
 
         old_photo = new_photo
 
