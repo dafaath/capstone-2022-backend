@@ -29,7 +29,7 @@ async def test_db():
     await create_test_account_if_not_exists(settings, db)
     yield
     print("Dropping test database")
-    # delete_all_object(bucket)
+    delete_all_object(bucket)
     delete_all_collection(fs)
     close_all_sessions()
     Base.metadata.drop_all(bind=engine)
