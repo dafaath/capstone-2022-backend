@@ -56,6 +56,7 @@ jobs:
           pipenv run isort
           pipenv run format
           pipenv run test
+          pipenv requirements > requirements.txt
         env:
           ENV: "test"
           DB_USER: postgres
