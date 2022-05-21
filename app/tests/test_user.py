@@ -1,3 +1,7 @@
+import os
+import urllib.request
+from urllib.error import HTTPError
+
 from fastapi.testclient import TestClient
 
 from app.main import app
@@ -35,6 +39,102 @@ async def test_error_get_all_users_without_admin(test_db, user_token):
     resp = response.json()
     print(resp)
     have_correct_status(response, 403)
+    have_error_detail(response)
+
+
+async def test_change_user_photo(test_db, user_token):
+    test_user = next(item for item in common_var["users"] if item["email"] == settings.test_account_email)
+    test_user_id = test_user["id"]
+
+    filenames = ["image1.png", "image2.jpg", "image3.jpeg"]
+    old_photo = test_user["photo"]
+    for filename in filenames:
+        full_path_filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'image', filename)
+        with open(full_path_filename, "rb") as f:
+            response = client.post(
+                f"/users/{test_user_id}/photo",
+                headers={
+                    "Authorization": "bearer " +
+                    user_token},
+                files={
+                    "file": (
+                        filename,
+                        f,
+                        "image/jpg")})
+
+        resp = response.json()
+        print(resp)
+        have_correct_status_and_message(response, 201, "change the user profile picture")
+        have_base_templates(response)
+        have_correct_data_properties(response, USER_RESPONSE_KEYS)
+
+        new_photo = resp["data"]["photo"]
+
+        assert old_photo != new_photo
+
+        try:
+            # ensure old photo deleted
+            print(old_photo)
+            request = urllib.request.Request(old_photo, method="GET")
+            with urllib.request.urlopen(request) as req:
+                print(req.status)
+                assert req.status != 200
+            assert False
+        except HTTPError as e:
+            assert e.status == 404
+            assert True
+
+        # can get new photo
+        print(new_photo)
+        request = urllib.request.Request(new_photo, method="GET")
+        with urllib.request.urlopen(request) as req:
+            print(req.status)
+            assert req.status == 200
+
+        old_photo = new_photo
+
+
+async def test_change_user_photo_forbidden(test_db, user_token):
+    admin = next(item for item in common_var["users"] if item["email"] == settings.admin_email)
+    admin_id = admin["id"]
+
+    filename = 'image1.png'
+    full_path_filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'image', filename)
+    with open(full_path_filename, "rb") as f:
+        response = client.post(
+            f"/users/{admin_id}/photo",
+            headers={
+                "Authorization": "bearer " +
+                user_token},
+            files={
+                "file": (
+                    filename,
+                    f,
+                    "image/jpg")})
+
+    have_correct_status(response, 403)
+    have_error_detail(response)
+
+
+async def test_change_user_photo_wrong_format(test_db, user_token):
+    test_user = next(item for item in common_var["users"] if item["email"] == settings.test_account_email)
+    test_user_id = test_user["id"]
+
+    filename = 'not_image.html'
+    full_path_filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'image', filename)
+    with open(full_path_filename, "rb") as f:
+        response = client.post(
+            f"/users/{test_user_id}/photo",
+            headers={
+                "Authorization": "bearer " +
+                user_token},
+            files={
+                "file": (
+                    filename,
+                    f,
+                    "image/jpg")})
+
+    have_correct_status(response, 422)
     have_error_detail(response)
 
 

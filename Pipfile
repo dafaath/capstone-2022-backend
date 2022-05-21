@@ -65,6 +65,7 @@ google-cloud-firestore = "*"
 essential-generators = "*"
 gunicorn = "*"
 python-dotenv = "*"
+google-cloud-storage = "*"
 
 [dev-packages]
 

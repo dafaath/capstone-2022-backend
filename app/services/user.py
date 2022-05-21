@@ -1,11 +1,16 @@
+
+import imghdr
 from typing import Optional
+from uuid import uuid4
 
 import bcrypt
-from fastapi import HTTPException
+from fastapi import HTTPException, UploadFile
+from google.cloud.storage import Bucket
 from sqlalchemy.orm import Session
 
 from app.models import User, UserRole
 from app.schema.user import RegisterBody, UpdateUserBody
+from app.utils.file import convert_content_type_to_format
 
 
 def register_user(user: RegisterBody, db: Session, role: UserRole = UserRole.REGULAR):
@@ -21,6 +26,31 @@ def register_user(user: RegisterBody, db: Session, role: UserRole = UserRole.REG
     db.commit()
     db.refresh(db_user)
     return db_user
+
+
+def save_user_profile_picture(user: User, file: UploadFile, bucket: Bucket, db: Session):
+    allowed_file_type = ["jpeg", "png", "jpg"]
+    file_type = imghdr.what(file.file)
+
+    if file_type not in allowed_file_type:
+        raise HTTPException(422, "The file type is not " + " or ".join(allowed_file_type))
+
+    user_old_photo = user._photo
+    saved_file_name = str(uuid4()) + "." + file_type
+    blob = bucket.blob(saved_file_name)
+    blob.upload_from_file(file.file)
+
+    user.photo = saved_file_name
+    db.add(user)
+
+    if user_old_photo != "default.png" and user_old_photo is not None:
+        blob = bucket.blob(user_old_photo)
+        if blob.exists():
+            blob.delete()
+
+    db.commit()
+    db.refresh(user)
+    return user
 
 
 def get_all_user(db: Session):

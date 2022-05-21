@@ -1,6 +1,6 @@
 import os
 
-from google.cloud import firestore
+from google.cloud import firestore, storage
 from google.oauth2 import service_account
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
@@ -32,6 +32,15 @@ credentials_file = os.path.join(os.path.dirname(os.path.realpath(__file__)),
 credentials = service_account.Credentials.from_service_account_file(
     credentials_file)
 project = settings.google_cloud_project_id
+
+
+def get_bucket():
+    storage_client = storage.Client(project=project, credentials=credentials)
+    bucket = storage_client.get_bucket(settings.bucket_name)
+    try:
+        yield bucket
+    finally:
+        pass
 
 
 def get_fs():

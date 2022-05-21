@@ -4,7 +4,7 @@ from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
-from app.database import get_db
+from app.database import get_bucket, get_db
 from app.routes import authentication, diary, example, user
 from app.schema.default_response import ResponseTemplate
 from app.utils.startup import (create_admin_account_if_not_exists,
@@ -17,7 +17,6 @@ app.include_router(authentication.router)
 app.include_router(user.router)
 app.include_router(diary.router)
 app.include_router(example.router)
-
 
 # CORS
 origins = [

@@ -40,6 +40,10 @@ class RegisterResponse(ResponseTemplate):
     data: UserResponse
 
 
+class SaveUserPhotoResponse(ResponseTemplate):
+    data: UserResponse
+
+
 class GetAllUserResponse(ResponseTemplate):
     data: list[UserResponse]
 

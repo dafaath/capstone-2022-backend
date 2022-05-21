@@ -2,13 +2,14 @@ import asyncio
 
 import pytest
 from google.cloud.firestore import Client
+from google.cloud.storage import Bucket
 from sqlalchemy.orm import Session, close_all_sessions
 
-from app.database import Base, engine, get_db, get_fs
+from app.database import Base, engine, get_bucket, get_db, get_fs
 from app.schema.user import UserResponse
 from app.services.authentication import create_access_token
 from app.services.user import get_user_by_email
-from app.utils.conftest_utils import delete_all_collection
+from app.utils.conftest_utils import delete_all_collection, delete_all_object
 from app.utils.startup import (create_admin_account_if_not_exists,
                                create_test_account_if_not_exists)
 from config import DefaultSettings, get_settings
@@ -21,12 +22,14 @@ async def test_db():
     print("Creating test database")
     db: Session = next(get_db())
     fs: Client = next(get_fs())
+    bucket: Bucket = next(get_bucket())
     settings: DefaultSettings = get_settings()
     Base.metadata.create_all(bind=engine)
     await create_admin_account_if_not_exists(settings, db)
     await create_test_account_if_not_exists(settings, db)
     yield
     print("Dropping test database")
+    delete_all_object(bucket)
     delete_all_collection(fs)
     close_all_sessions()
     Base.metadata.drop_all(bind=engine)

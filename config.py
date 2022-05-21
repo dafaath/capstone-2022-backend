@@ -34,7 +34,8 @@ class DefaultSettings(BaseSettings):
     google_client_id: str = "137562844094-8v9i3tc76635h2hrm7kk0f2dg7sodnkk.apps.googleusercontent.com"
     google_cloud_project_id: str = "emodiary-bangkit"
     google_application_credentials = "service-account.json"  # Google cloud service account
-    static_file_routes: str = ""
+    bucket_name: str = "emodiary-profile-picture"
+    static_file_routes: str = "https://storage.googleapis.com/emodiary-profile-picture/"
 
     class Config:
         use_enum_values = True
@@ -49,6 +50,8 @@ class TestSettings(DefaultSettings):
     db_name: str = "test_emodiary"
     google_cloud_project_id: str = "emodiary-test"
     google_application_credentials = "service-account-test.json"  # Google cloud service account
+    bucket_name: str = "emodiary-profile-picture-test"
+    static_file_routes: str = "https://storage.googleapis.com/emodiary-profile-picture-test/"
 
 
 class ProdSettings(DefaultSettings):

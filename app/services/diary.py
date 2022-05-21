@@ -80,7 +80,6 @@ def update_diary(diary: DiaryDatabase, body: UpdateDiaryBody, fs: Client):
         setattr(diary, key, value)
     diary.time_updated = datetime.now()
 
-    print(diary.dict())
     fs.collection('diary').document(diary.id).update(diary.dict(exclude={"id"}))
     return diary
 
