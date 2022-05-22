@@ -1,11 +1,13 @@
+from essential_generators import DocumentGenerator
 from fastapi.testclient import TestClient
 
 from app.utils.jwt import decrypt_access_token, decrypt_refresh_token
-from app.utils.test import (USER_RESPONSE_KEYS, UserResponsePlus, dict_have_correct_properties,
-                            have_base_templates, have_correct_data_properties, have_correct_status,
-                            have_correct_status_and_message, have_error_message, have_no_undefined, random_char)
+from app.utils.test import (USER_RESPONSE_KEYS, UserResponsePlus,
+                            dict_have_correct_properties, have_base_templates,
+                            have_correct_data_properties, have_correct_status,
+                            have_correct_status_and_message,
+                            have_error_message, have_no_undefined, random_char)
 from config import RunningENV, get_settings
-from essential_generators import DocumentGenerator
 
 common_var = {}
 main = DocumentGenerator()

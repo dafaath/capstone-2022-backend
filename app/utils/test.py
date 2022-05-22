@@ -1,11 +1,11 @@
 import random
 import string
 
+from fastapi.testclient import TestClient
 from jose import jwt
 from requests import Response
 
 from app.schema.user import UserResponse
-from fastapi.testclient import TestClient
 
 USER_RESPONSE_KEYS = ["id", "email", "phone", "isActive", "timeCreated", "photo", "timeUpdated", "role", "fullname"]
 DIARY_RESPONSE_KEYS = [

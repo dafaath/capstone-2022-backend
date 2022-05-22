@@ -2,20 +2,18 @@ import os
 import urllib.request
 from urllib.error import HTTPError
 
+from essential_generators import DocumentGenerator
 from fastapi.testclient import TestClient
-from app.schema.user import UserResponse
 
+from app.schema.user import UserResponse
 from app.utils.test import (USER_RESPONSE_KEYS, UserResponsePlus,
-                            decrypt_access_token_without_verification, get_access_token_login,
-                            have_base_templates, have_correct_data_properties,
-                            have_correct_status,
+                            decrypt_access_token_without_verification,
+                            get_access_token_login, have_base_templates,
+                            have_correct_data_properties, have_correct_status,
                             have_correct_status_and_message,
                             have_data_list_with_correct_properties,
                             have_error_message, random_char, random_digit)
 from config import get_settings
-
-from essential_generators import DocumentGenerator
-
 
 settings = get_settings()
 USER_COUNT = 3
