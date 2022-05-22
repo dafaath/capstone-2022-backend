@@ -100,7 +100,7 @@ jobs:
           project_id: "emodiary-bangkit"
           promote: false
       - name: Set deploy url as ENV
-        run: echo "PRODUCTION_BASE_URL="${{ steps.deploy.outputs.url }}" >> $GITHUB_ENV
+        run: echo "PRODUCTION_BASE_URL=${{ steps.deploy.outputs.url }}" >> $GITHUB_ENV
       - name: Test newly deployed server
         run: pipenv run test -c test_production_env.ini -s
       - name: Migrate to new version if test success and delete old version
