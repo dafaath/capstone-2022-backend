@@ -5,6 +5,7 @@ from jose import jwt
 from requests import Response
 
 from app.schema.user import UserResponse
+from fastapi.testclient import TestClient
 
 USER_RESPONSE_KEYS = ["id", "email", "phone", "isActive", "timeCreated", "photo", "timeUpdated", "role", "fullname"]
 DIARY_RESPONSE_KEYS = [
@@ -84,3 +85,20 @@ def decrypt_access_token_without_verification(token: str):
 
 def decrypt_jwt_without_verification(token: str) -> dict:
     return jwt.get_unverified_claims(token)
+
+
+def get_access_token_login(client: TestClient, username: str, password: str):
+    response = client.post("/authentications/login", data={
+        "username": username,
+        "password": password
+    })
+    resp = response.json()
+    print(username, password, resp)
+
+    assert response.status_code == 200
+    return resp["access_token"]
+
+
+class UserResponsePlus(UserResponse):
+    password: str
+    access_token: str

@@ -59,6 +59,11 @@ class TestSettings(DefaultSettings):
 class TestProductionSettings(TestSettings):
     env: RunningENV = RunningENV.TEST_PRODUCTION
 
+    class Config:
+        env_file = 'prod.env'
+        env_file_encoding = 'utf-8'
+        use_enum_values = True
+
 
 class ProdSettings(DefaultSettings):
     env: RunningENV = RunningENV.PRODUCTION

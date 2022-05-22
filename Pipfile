@@ -67,6 +67,7 @@ python-dotenv = "*"
 google-cloud-storage = "*"
 requests = "*"
 requests-toolbelt = "*"
+pylint = "*"
 
 [dev-packages]
 

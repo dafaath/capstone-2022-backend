@@ -1,23 +1,26 @@
 from fastapi.testclient import TestClient
 
 from app.utils.jwt import decrypt_access_token, decrypt_refresh_token
-from app.utils.test import (USER_RESPONSE_KEYS, dict_have_correct_properties,
-                            have_base_templates, have_correct_data_properties,
-                            have_correct_status_and_message, have_no_undefined)
+from app.utils.test import (USER_RESPONSE_KEYS, UserResponsePlus, dict_have_correct_properties,
+                            have_base_templates, have_correct_data_properties, have_correct_status,
+                            have_correct_status_and_message, have_error_message, have_no_undefined, random_char)
 from config import RunningENV, get_settings
+from essential_generators import DocumentGenerator
 
 common_var = {}
+main = DocumentGenerator()
 
 
 async def test_register(test_db, client: TestClient):
-    response = client.post("/users/", json={
-        "email": "dafa@gmail.com",
-        "phone": "+62813290823141",
-        "fullname": "Muhammad Dafa",
-        "password": "123"
-    })
+    body = {
+        "email": main.email(),
+        "fullname": main.name(),
+        "password": random_char(4)
+    }
+    response = client.post("/users/", json=body)
     resp = response.json()
-    print(resp)
+    common_var["user"] = resp["data"]
+    common_var["user"]["password"] = body["password"]
 
     have_base_templates(response)
     have_correct_status_and_message(response, 201, "Registration successful")
@@ -46,8 +49,8 @@ def check_refresh_token(result):
 
 async def test_login(test_db, client: TestClient):
     response = client.post("/authentications/login", data={
-        "username": "dafa@gmail.com",
-        "password": "123"
+        "username": common_var["user"]["email"],
+        "password": common_var["user"]["password"]
     })
     resp = response.json()
     print(resp)
@@ -87,3 +90,17 @@ async def test_refresh(test_db, client: TestClient):
     # Ensure valid token
     result = decrypt_access_token(resp['data']['accessToken'])
     check_access_token(result)
+
+
+async def test_delete_created_user(test_db, client: TestClient):
+    user_id = common_var["user"]["id"]
+    access_token = common_var["accessToken"]
+    response = client.delete(f"/users/{user_id}", headers={"Authorization": "bearer " + access_token})
+    print(response.json())
+    have_correct_status_and_message(response, 200, "delete user")
+    have_base_templates(response)
+    have_correct_data_properties(response, USER_RESPONSE_KEYS)
+
+    response = client.get(f"/users/{user_id}", headers={"Authorization": "bearer " + access_token})
+    have_correct_status(response, 404)
+    have_error_message(response)

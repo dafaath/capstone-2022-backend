@@ -53,6 +53,10 @@ async def test_get_all_diaries(test_db, admin_token, client: TestClient):
     response = client.get("/diaries/all", headers={"Authorization": "bearer " + admin_token})
     resp = response.json()
     print(resp)
+
+    assert isinstance(resp["data"], list)
+    common_var["many_diary"] = len(resp["data"]) - (DIARY_COUNT * 2)
+
     have_base_templates(response)
     have_data_list_with_correct_properties(response, DIARY_RESPONSE_KEYS)
     have_correct_status_and_message(response, 200, "get all diaries")
@@ -243,3 +247,11 @@ async def test_delete_one_diary_reguler(test_db, user_token, client: TestClient)
         response = client.get(f"/diaries/{diary['id']}", headers={"Authorization": "bearer " + user_token})
         have_correct_status(response, 404)
         have_error_message(response)
+
+
+async def test_no_leftover(test_db, client: TestClient, admin_token):
+    response = client.get("/diaries/all", headers={"Authorization": "bearer " + admin_token})
+    resp = response.json()
+    print(resp["data"])
+    assert isinstance(resp["data"], list)
+    assert common_var["many_diary"] == len(resp["data"])

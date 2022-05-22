@@ -1,4 +1,3 @@
-import requests_toolbelt
 from fastapi.testclient import TestClient
 from google.cloud.firestore import Client
 from google.cloud.storage import Bucket
