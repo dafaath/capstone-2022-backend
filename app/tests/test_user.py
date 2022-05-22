@@ -3,6 +3,7 @@ import urllib.request
 from urllib.error import HTTPError
 
 from fastapi.testclient import TestClient
+from requests_toolbelt import sessions
 
 from app.main import app
 from app.utils.test import (USER_RESPONSE_KEYS, have_base_templates,
@@ -11,7 +12,6 @@ from app.utils.test import (USER_RESPONSE_KEYS, have_base_templates,
                             have_data_list_with_correct_properties,
                             have_error_message, random_char, random_digit)
 from config import RunningENV, get_settings
-from requests_toolbelt import sessions
 
 settings = get_settings()
 client = TestClient(app)

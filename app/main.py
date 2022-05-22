@@ -1,18 +1,20 @@
+from starlette.exceptions import HTTPException as StarletteHTTPException
 import asyncio
 from email.errors import StartBoundaryNotFoundDefect
 from tkinter import W
 
 from fastapi import Depends, FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
+from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
 from app.database import get_bucket, get_db
 from app.routes import authentication, diary, example, user
-from app.schema.default_response import HTTPErrorResponseTemplate, ResponseTemplate, error_reason
+from app.schema.default_response import (HTTPErrorResponseTemplate,
+                                         ResponseTemplate, error_reason)
 from app.utils.startup import (create_admin_account_if_not_exists,
                                create_test_account_if_not_exists,
                                generate_database_test, write_openapi_file)
@@ -36,7 +38,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-from starlette.exceptions import HTTPException as StarletteHTTPException
 
 
 @app.exception_handler(StarletteHTTPException)
