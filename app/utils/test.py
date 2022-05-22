@@ -1,7 +1,10 @@
 import random
 import string
+from jose import jwt
 
 from requests import Response
+
+from app.schema.user import UserResponse
 
 USER_RESPONSE_KEYS = ["id", "email", "phone", "isActive", "timeCreated", "photo", "timeUpdated", "role", "fullname"]
 DIARY_RESPONSE_KEYS = [
@@ -72,3 +75,12 @@ def random_char(char_num):
 
 def random_digit(char_num):
     return ''.join(random.choice(string.digits) for _ in range(char_num))
+
+
+def decrypt_access_token_without_verification(token: str):
+    data = decrypt_jwt_without_verification(token)
+    return UserResponse(**data)
+
+
+def decrypt_jwt_without_verification(token: str) -> dict:
+    return jwt.get_unverified_claims(token)

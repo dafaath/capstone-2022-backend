@@ -3,27 +3,19 @@ import urllib.request
 from urllib.error import HTTPError
 
 from fastapi.testclient import TestClient
-from requests_toolbelt import sessions
 
-from app.main import app
-from app.utils.test import (USER_RESPONSE_KEYS, have_base_templates,
+from app.utils.test import (USER_RESPONSE_KEYS, decrypt_access_token_without_verification, have_base_templates,
                             have_correct_data_properties, have_correct_status,
                             have_correct_status_and_message,
                             have_data_list_with_correct_properties,
                             have_error_message, random_char, random_digit)
-from config import RunningENV, get_settings
+from config import get_settings
 
 settings = get_settings()
-client = TestClient(app)
-
-if settings.env == RunningENV.TEST_PRODUCTION.value:
-    client = sessions.BaseUrlSession(base_url=settings.production_base_url)
-
 common_var = {}
-settings = get_settings()
 
 
-async def test_get_all_users(test_db, admin_token):
+async def test_get_all_users(test_db, admin_token, client: TestClient):
     response = client.get("/users", headers={"Authorization": "bearer " + admin_token})
     resp = response.json()
     print(resp)
@@ -34,7 +26,7 @@ async def test_get_all_users(test_db, admin_token):
     common_var["users"] = resp["data"]
 
 
-async def test_error_get_all_users_without_admin(test_db, user_token):
+async def test_error_get_all_users_without_admin(test_db, user_token, client: TestClient):
     response = client.get("/users")
     resp = response.json()
     print(resp)
@@ -48,12 +40,12 @@ async def test_error_get_all_users_without_admin(test_db, user_token):
     have_error_message(response)
 
 
-async def test_change_user_photo(test_db, user_token):
-    test_user = next(item for item in common_var["users"] if item["email"] == settings.test_account_email)
-    test_user_id = test_user["id"]
+async def test_change_user_photo(test_db, user_token, client: TestClient):
+    test_user = decrypt_access_token_without_verification(user_token)
+    test_user_id = test_user.id
 
     filenames = ["image1.png", "image2.jpg", "image3.jpeg"]
-    old_photo = test_user["photo"]
+    old_photo = test_user.photo
     for filename in filenames:
         full_path_filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'image', filename)
         print(f"---filename = {full_path_filename}---")
@@ -101,9 +93,9 @@ async def test_change_user_photo(test_db, user_token):
         old_photo = new_photo
 
 
-async def test_change_user_photo_forbidden(test_db, user_token):
-    admin = next(item for item in common_var["users"] if item["email"] == settings.admin_email)
-    admin_id = admin["id"]
+async def test_change_user_photo_forbidden(test_db, user_token, admin_token, client: TestClient):
+    admin = decrypt_access_token_without_verification(admin_token)
+    admin_id = admin.id
 
     filename = 'image1.png'
     full_path_filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'image', filename)
@@ -123,9 +115,9 @@ async def test_change_user_photo_forbidden(test_db, user_token):
     have_error_message(response)
 
 
-async def test_change_user_photo_wrong_format(test_db, user_token):
-    test_user = next(item for item in common_var["users"] if item["email"] == settings.test_account_email)
-    test_user_id = test_user["id"]
+async def test_change_user_photo_wrong_format(test_db, user_token, client: TestClient):
+    test_user = decrypt_access_token_without_verification(user_token)
+    test_user_id = test_user.id
 
     filename = 'not_image.html'
     full_path_filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'image', filename)
@@ -145,7 +137,7 @@ async def test_change_user_photo_wrong_format(test_db, user_token):
     have_error_message(response)
 
 
-async def test_get_one_user(test_db, admin_token):
+async def test_get_one_user(test_db, admin_token, client: TestClient):
     for user in common_var["users"]:
         response = client.get(f"/users/{user['id']}", headers={"Authorization": "bearer " + admin_token})
         have_correct_status_and_message(response, 200, "get user")
@@ -153,15 +145,15 @@ async def test_get_one_user(test_db, admin_token):
         have_correct_data_properties(response, USER_RESPONSE_KEYS)
 
 
-async def test_get_one_user_reguler(test_db, user_token):
-    test_user_id = next(item for item in common_var["users"] if item["email"] == settings.test_account_email)["id"]
+async def test_get_one_user_reguler(test_db, user_token, client: TestClient):
+    test_user_id = decrypt_access_token_without_verification(user_token).id
     response = client.get(f"/users/{test_user_id}", headers={"Authorization": "bearer " + user_token})
     have_correct_status_and_message(response, 200, "get user")
     have_base_templates(response)
     have_correct_data_properties(response, USER_RESPONSE_KEYS)
 
 
-async def test_get_one_user_forbidden(test_db, user_token):
+async def test_get_one_user_forbidden(test_db, user_token, client: TestClient):
     for user in common_var["users"]:
         if user["email"] == settings.test_account_email:
             continue
@@ -171,7 +163,7 @@ async def test_get_one_user_forbidden(test_db, user_token):
         have_error_message(response)
 
 
-async def test_update_user_admin(test_db, admin_token):
+async def test_update_user_admin(test_db, admin_token, client: TestClient):
     for user in common_var["users"]:
         if user["email"] == settings.test_account_email:
             continue
@@ -192,8 +184,8 @@ async def test_update_user_admin(test_db, admin_token):
         have_correct_data_properties(response, USER_RESPONSE_KEYS)
 
 
-async def test_update_regular(test_db, user_token):
-    test_user_id = next(item for item in common_var["users"] if item["email"] == settings.test_account_email)["id"]
+async def test_update_regular(test_db, user_token, client: TestClient):
+    test_user_id = decrypt_access_token_without_verification(user_token).id
     new_email = "haha@gmail.com"
     new_phone_number = "+6189234120324"
     new_password = "new_pass"
@@ -225,8 +217,8 @@ async def test_update_regular(test_db, user_token):
     assert response.status_code == 200
 
 
-async def test_update_user_password_wrong(test_db, user_token):
-    test_user_id = next(item for item in common_var["users"] if item["email"] == settings.test_account_email)["id"]
+async def test_update_user_password_wrong(test_db, user_token, client: TestClient):
+    test_user_id = decrypt_access_token_without_verification(user_token).id
     new_password = "new_pass_2"
     body = {
         "newPassword": new_password,
@@ -237,7 +229,7 @@ async def test_update_user_password_wrong(test_db, user_token):
     have_error_message(response)
 
 
-async def test_update_user_forbidden(test_db, user_token):
+async def test_update_user_forbidden(test_db, user_token, client: TestClient):
     for user in common_var["users"]:
         if user["email"] == settings.test_account_email:
             continue
@@ -253,7 +245,7 @@ async def test_update_user_forbidden(test_db, user_token):
         have_error_message(response)
 
 
-async def test_delete_one_user_forbidden(test_db, user_token):
+async def test_delete_one_user_forbidden(test_db, user_token, client: TestClient):
     for user in common_var["users"]:
         if user["email"] == settings.test_account_email:
             continue
@@ -265,7 +257,7 @@ async def test_delete_one_user_forbidden(test_db, user_token):
         have_error_message(response)
 
 
-async def test_delete_one_user(test_db, admin_token):
+async def test_delete_one_user(test_db, admin_token, client: TestClient):
     for user in common_var["users"]:
         if user["email"] == settings.test_account_email:
             continue
@@ -281,9 +273,8 @@ async def test_delete_one_user(test_db, admin_token):
         have_error_message(response)
 
 
-async def test_delete_one_user_reguler(test_db, user_token):
-    test_user_id = next(item for item in common_var["users"]
-                        if item["email"] == settings.test_account_email)["id"]
+async def test_delete_one_user_reguler(test_db, user_token, client: TestClient):
+    test_user_id = decrypt_access_token_without_verification(user_token).id
     response = client.delete(f"/users/{test_user_id}", headers={"Authorization": "bearer " + user_token})
     print(response.json())
     have_correct_status_and_message(response, 200, "delete user")

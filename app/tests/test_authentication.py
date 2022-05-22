@@ -1,17 +1,15 @@
 from fastapi.testclient import TestClient
 
-from app.main import app
 from app.utils.jwt import decrypt_access_token, decrypt_refresh_token
 from app.utils.test import (USER_RESPONSE_KEYS, dict_have_correct_properties,
                             have_base_templates, have_correct_data_properties,
                             have_correct_status_and_message, have_no_undefined)
 from config import RunningENV, get_settings
 
-client = TestClient(app)
 common_var = {}
 
 
-async def test_register(test_db):
+async def test_register(test_db, client: TestClient):
     response = client.post("/users/", json={
         "email": "dafa@gmail.com",
         "phone": "+62813290823141",
@@ -46,7 +44,7 @@ def check_refresh_token(result):
     assert result.payload.session_id
 
 
-async def test_login(test_db):
+async def test_login(test_db, client: TestClient):
     response = client.post("/authentications/login", data={
         "username": "dafa@gmail.com",
         "password": "123"
@@ -74,7 +72,7 @@ async def test_login(test_db):
     common_var["accessToken"] = resp['access_token']
 
 
-async def test_refresh(test_db):
+async def test_refresh(test_db, client: TestClient):
     response = client.post("/authentications/refresh", json={
         "refreshToken": common_var["refreshToken"]
     })

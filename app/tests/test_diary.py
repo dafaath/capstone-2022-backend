@@ -1,16 +1,19 @@
 from essential_generators import DocumentGenerator
 from fastapi.testclient import TestClient
 
-from app.main import app
-from app.utils.test import (DIARY_RESPONSE_KEYS, USER_RESPONSE_KEYS,
-                            dict_have_correct_properties, have_base_templates,
-                            have_correct_data_properties, have_correct_status,
-                            have_correct_status_and_message,
-                            have_data_list_with_correct_properties,
-                            have_error_message, random_char, random_digit)
+from app.utils.test import (
+    DIARY_RESPONSE_KEYS,
+    USER_RESPONSE_KEYS,
+    decrypt_access_token_without_verification,
+    have_base_templates,
+    have_correct_data_properties,
+    have_correct_status,
+    have_correct_status_and_message,
+    have_data_list_with_correct_properties,
+    have_error_message,
+)
 from config import get_settings
 
-client = TestClient(app)
 common_var = {}
 settings = get_settings()
 DIARY_COUNT = 2
@@ -20,7 +23,7 @@ admin_diaries = []
 user_diaries = []
 
 
-async def test_create_diaries_regular(test_db, user_token):
+async def test_create_diaries_regular(test_db, user_token, client: TestClient):
     for i in range(DIARY_COUNT):
         data = {
             "title": main.sentence(),
@@ -35,7 +38,7 @@ async def test_create_diaries_regular(test_db, user_token):
         user_diaries.append(data)
 
 
-async def test_create_diaries_admin(test_db, admin_token):
+async def test_create_diaries_admin(test_db, admin_token, client: TestClient):
     for i in range(DIARY_COUNT):
         data = {
             "title": main.sentence(),
@@ -50,7 +53,7 @@ async def test_create_diaries_admin(test_db, admin_token):
         admin_diaries.append(data)
 
 
-async def test_get_all_diaries(test_db, admin_token):
+async def test_get_all_diaries(test_db, admin_token, client: TestClient):
     response = client.get("/diaries/all", headers={"Authorization": "bearer " + admin_token})
     resp = response.json()
     print(resp)
@@ -59,7 +62,7 @@ async def test_get_all_diaries(test_db, admin_token):
     have_correct_status_and_message(response, 200, "get all diaries")
 
 
-async def test_error_get_all_diaries_without_admin(test_db, user_token):
+async def test_error_get_all_diaries_without_admin(test_db, user_token, client: TestClient):
     response = client.get("/diaries/all")
     resp = response.json()
     print(resp)
@@ -73,7 +76,7 @@ async def test_error_get_all_diaries_without_admin(test_db, user_token):
     have_error_message(response)
 
 
-async def test_get_user_diaries_error(test_db):
+async def test_get_user_diaries_error(test_db, client: TestClient):
     response = client.get("/diaries")
     resp = response.json()
     print(resp)
@@ -81,7 +84,7 @@ async def test_get_user_diaries_error(test_db):
     have_error_message(response)
 
 
-async def test_get_admin_user_diaries(test_db, admin_token):
+async def test_get_admin_user_diaries(test_db, admin_token, client: TestClient):
     response = client.get("/diaries", headers={"Authorization": "bearer " + admin_token})
     resp = response.json()
     print(resp)
@@ -101,7 +104,7 @@ async def test_get_admin_user_diaries(test_db, admin_token):
         assert new_admin_diaries[i] == data[i]
 
 
-async def test_get_test_user_diaries(test_db, user_token):
+async def test_get_test_user_diaries(test_db, user_token, client: TestClient):
     response = client.get("/diaries", headers={"Authorization": "bearer " + user_token})
     resp = response.json()
     print(resp)
@@ -121,7 +124,7 @@ async def test_get_test_user_diaries(test_db, user_token):
         assert new_user_diaries[i] == data[i]
 
 
-async def test_get_one_diary(test_db, admin_token):
+async def test_get_one_diary(test_db, admin_token, client: TestClient):
     for diary in diaries:
         response = client.get(f"/diaries/{diary['id']}", headers={"Authorization": "bearer " + admin_token})
         have_correct_status_and_message(response, 200, "get diary")
@@ -129,7 +132,7 @@ async def test_get_one_diary(test_db, admin_token):
         have_correct_data_properties(response, DIARY_RESPONSE_KEYS)
 
 
-async def test_get_one_diary_reguler(test_db, user_token, user):
+async def test_get_one_diary_reguler(test_db, user_token, client: TestClient):
     for diary in user_diaries:
         response = client.get(f"/diaries/{diary['id']}", headers={"Authorization": "bearer " + user_token})
         have_correct_status_and_message(response, 200, "get diary")
@@ -137,7 +140,7 @@ async def test_get_one_diary_reguler(test_db, user_token, user):
         have_correct_data_properties(response, DIARY_RESPONSE_KEYS)
 
 
-async def test_get_one_diary_forbidden(test_db, user_token, user):
+async def test_get_one_diary_forbidden(test_db, user_token, client: TestClient):
     for diary in admin_diaries:
         response = client.get(f"/diaries/{diary['id']}", headers={"Authorization": "bearer " + user_token})
         print(response.json())
@@ -145,7 +148,7 @@ async def test_get_one_diary_forbidden(test_db, user_token, user):
         have_error_message(response)
 
 
-async def test_update_regular(test_db, user_token, user):
+async def test_update_regular(test_db, user_token, client: TestClient):
     for diary in user_diaries:
         new_content = "new regular content"
         body = {
@@ -167,7 +170,8 @@ async def test_update_regular(test_db, user_token, user):
         have_correct_data_properties(response, DIARY_RESPONSE_KEYS)
 
 
-async def test_update_diary_admin(test_db, admin_token, user):
+async def test_update_diary_admin(test_db, admin_token, user_token, client: TestClient):
+    user = decrypt_access_token_without_verification(user_token)
     for diary in diaries:
         if diary["userId"] == user.id:
             continue
@@ -193,7 +197,8 @@ async def test_update_diary_admin(test_db, admin_token, user):
         have_correct_data_properties(response, DIARY_RESPONSE_KEYS)
 
 
-async def test_update_diary_forbidden(test_db, user_token, user):
+async def test_update_diary_forbidden(test_db, user_token, client: TestClient):
+    user = decrypt_access_token_without_verification(user_token)
     for diary in admin_diaries:
         new_content = "new content forbidden"
         data = {
@@ -210,7 +215,7 @@ async def test_update_diary_forbidden(test_db, user_token, user):
         have_error_message(response)
 
 
-async def test_delete_one_diary_forbidden(test_db, user_token, user):
+async def test_delete_one_diary_forbidden(test_db, user_token, client: TestClient):
     for diary in admin_diaries:
         response = client.delete(f"/diaries/{diary['id']}", headers={"Authorization": "bearer " + user_token})
         print(response.json())
@@ -218,7 +223,7 @@ async def test_delete_one_diary_forbidden(test_db, user_token, user):
         have_error_message(response)
 
 
-async def test_delete_one_diary(test_db, admin_token, user):
+async def test_delete_one_diary(test_db, admin_token, client: TestClient):
     for diary in admin_diaries:
         response = client.delete(f"/diaries/{diary['id']}", headers={"Authorization": "bearer " + admin_token})
         print(response.json())
@@ -231,7 +236,7 @@ async def test_delete_one_diary(test_db, admin_token, user):
         have_error_message(response)
 
 
-async def test_delete_one_diary_reguler(test_db, user_token, user):
+async def test_delete_one_diary_reguler(test_db, user_token, client: TestClient):
     for diary in user_diaries:
         response = client.delete(f"/diaries/{diary['id']}", headers={"Authorization": "bearer " + user_token})
         print(response.json())
