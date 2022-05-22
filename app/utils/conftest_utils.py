@@ -21,6 +21,7 @@ def delete_all_object(bucket: Bucket):
 
 def get_client(settings: DefaultSettings):
     if settings.env == RunningENV.TEST_PRODUCTION.value:
+        print("Testing route " + settings.production_base_url)
         return sessions.BaseUrlSession(base_url=settings.production_base_url)
     else:
         return TestClient(app)

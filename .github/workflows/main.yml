@@ -99,6 +99,17 @@ jobs:
         with:
           project_id: "emodiary-bangkit"
           promote: false
-
-      - id: "test"
-        run: 'curl "${{ steps.deploy.outputs.url }}"'
+      - name: Set deploy url as ENV
+        run: echo "PRODUCTION_BASE_URL="${{ steps.deploy.outputs.url }}" >> $GITHUB_ENV
+      - name: Test newly deployed server
+        run: pipenv run test -c test_production_env.ini -s
+      - name: Migrate to new version if test success and delete old version
+        run: |
+          yes Y | gcloud app services set-traffic default --splits $(echo "$PRODUCTION_BASE_URL" | cut -d / -f 3 | cut -d - -f 1)=1 --project="emodiary-bangkit"
+      - id: remove
+        name: Remove old version beyond newest 3
+        uses: Reviewable/appengine-remove-action@v2.1.2
+        with:
+          limit: 3
+          project_id: "emodiary-bangkit"
+          service_name: "default"
