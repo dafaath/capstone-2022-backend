@@ -1,6 +1,6 @@
 from doctest import Example
 
-from pydantic import Field
+from pydantic import Field, validator
 
 from app.utils.schema import TemplateModel
 
@@ -11,10 +11,14 @@ class ResponseTemplate(TemplateModel):
     data: dict = Field(None, description="Response data")
 
 
-class MyHTTPError(TemplateModel):
-    detail: str = Field(...,
-                        description="The reason for the error", example="Error reasons")
+class HTTPErrorResponseTemplate(TemplateModel):
+    message: str = Field(...,
+                         description="The reason for the error", example="error reasons")
+
+    @validator('message')
+    def capitalize_string(cls, v: str):
+        return v.capitalize()
 
 
 def error_reason(description: str):
-    return {"model": MyHTTPError, "description": description}
+    return {"model": HTTPErrorResponseTemplate, "description": description}

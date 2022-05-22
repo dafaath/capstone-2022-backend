@@ -15,10 +15,10 @@ DIARY_RESPONSE_KEYS = [
     "userId"]
 
 
-def have_error_detail(response: Response):
+def have_error_message(response: Response):
     resp = response.json()
-    assert resp["detail"]
-    assert isinstance(resp["detail"], str)
+    assert resp["message"]
+    assert isinstance(resp["message"], str)
 
 
 def have_correct_status(response: Response, code: int):

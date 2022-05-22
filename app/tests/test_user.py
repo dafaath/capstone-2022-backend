@@ -9,10 +9,16 @@ from app.utils.test import (USER_RESPONSE_KEYS, have_base_templates,
                             have_correct_data_properties, have_correct_status,
                             have_correct_status_and_message,
                             have_data_list_with_correct_properties,
-                            have_error_detail, random_char, random_digit)
-from config import get_settings
+                            have_error_message, random_char, random_digit)
+from config import RunningENV, get_settings
+from requests_toolbelt import sessions
 
+settings = get_settings()
 client = TestClient(app)
+
+if settings.env == RunningENV.TEST_PRODUCTION.value:
+    client = sessions.BaseUrlSession(base_url=settings.production_base_url)
+
 common_var = {}
 settings = get_settings()
 
@@ -33,13 +39,13 @@ async def test_error_get_all_users_without_admin(test_db, user_token):
     resp = response.json()
     print(resp)
     have_correct_status(response, 401)
-    have_error_detail(response)
+    have_error_message(response)
 
     response = client.get("/users/", headers={"Authorization": "bearer " + user_token})
     resp = response.json()
     print(resp)
     have_correct_status(response, 403)
-    have_error_detail(response)
+    have_error_message(response)
 
 
 async def test_change_user_photo(test_db, user_token):
@@ -114,7 +120,7 @@ async def test_change_user_photo_forbidden(test_db, user_token):
                     "image/jpg")})
 
     have_correct_status(response, 403)
-    have_error_detail(response)
+    have_error_message(response)
 
 
 async def test_change_user_photo_wrong_format(test_db, user_token):
@@ -136,7 +142,7 @@ async def test_change_user_photo_wrong_format(test_db, user_token):
                     "image/jpg")})
 
     have_correct_status(response, 422)
-    have_error_detail(response)
+    have_error_message(response)
 
 
 async def test_get_one_user(test_db, admin_token):
@@ -162,7 +168,7 @@ async def test_get_one_user_forbidden(test_db, user_token):
 
         response = client.get(f"/users/{user['id']}", headers={"Authorization": "bearer " + user_token})
         have_correct_status(response, 403)
-        have_error_detail(response)
+        have_error_message(response)
 
 
 async def test_update_user_admin(test_db, admin_token):
@@ -228,7 +234,7 @@ async def test_update_user_password_wrong(test_db, user_token):
     }
     response = client.patch(f"/users/{test_user_id}", headers={"Authorization": "bearer " + user_token}, json=body)
     have_correct_status(response, 403)
-    have_error_detail(response)
+    have_error_message(response)
 
 
 async def test_update_user_forbidden(test_db, user_token):
@@ -244,7 +250,7 @@ async def test_update_user_forbidden(test_db, user_token):
         }
         response = client.patch(f"/users/{user['id']}", headers={"Authorization": "bearer " + user_token}, json=data)
         have_correct_status(response, 403)
-        have_error_detail(response)
+        have_error_message(response)
 
 
 async def test_delete_one_user_forbidden(test_db, user_token):
@@ -256,7 +262,7 @@ async def test_delete_one_user_forbidden(test_db, user_token):
         response = client.delete(f"/users/{user['id']}", headers={"Authorization": "bearer " + user_token})
         print(response.json())
         have_correct_status(response, 403)
-        have_error_detail(response)
+        have_error_message(response)
 
 
 async def test_delete_one_user(test_db, admin_token):
@@ -272,7 +278,7 @@ async def test_delete_one_user(test_db, admin_token):
 
         response = client.get(f"/users/{user['id']}", headers={"Authorization": "bearer " + admin_token})
         have_correct_status(response, 404)
-        have_error_detail(response)
+        have_error_message(response)
 
 
 async def test_delete_one_user_reguler(test_db, user_token):
@@ -286,4 +292,4 @@ async def test_delete_one_user_reguler(test_db, user_token):
 
     response = client.get(f"/users/{test_user_id}", headers={"Authorization": "bearer " + user_token})
     have_correct_status(response, 404)
-    have_error_detail(response)
+    have_error_message(response)

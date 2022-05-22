@@ -7,7 +7,7 @@ from app.utils.test import (DIARY_RESPONSE_KEYS, USER_RESPONSE_KEYS,
                             have_correct_data_properties, have_correct_status,
                             have_correct_status_and_message,
                             have_data_list_with_correct_properties,
-                            have_error_detail, random_char, random_digit)
+                            have_error_message, random_char, random_digit)
 from config import get_settings
 
 client = TestClient(app)
@@ -64,13 +64,13 @@ async def test_error_get_all_diaries_without_admin(test_db, user_token):
     resp = response.json()
     print(resp)
     have_correct_status(response, 401)
-    have_error_detail(response)
+    have_error_message(response)
 
     response = client.get("/diaries/all", headers={"Authorization": "bearer " + user_token})
     resp = response.json()
     print(resp)
     have_correct_status(response, 403)
-    have_error_detail(response)
+    have_error_message(response)
 
 
 async def test_get_user_diaries_error(test_db):
@@ -78,7 +78,7 @@ async def test_get_user_diaries_error(test_db):
     resp = response.json()
     print(resp)
     have_correct_status(response, 401)
-    have_error_detail(response)
+    have_error_message(response)
 
 
 async def test_get_admin_user_diaries(test_db, admin_token):
@@ -142,7 +142,7 @@ async def test_get_one_diary_forbidden(test_db, user_token, user):
         response = client.get(f"/diaries/{diary['id']}", headers={"Authorization": "bearer " + user_token})
         print(response.json())
         have_correct_status(response, 403)
-        have_error_detail(response)
+        have_error_message(response)
 
 
 async def test_update_regular(test_db, user_token, user):
@@ -207,7 +207,7 @@ async def test_update_diary_forbidden(test_db, user_token, user):
             json=data)
 
         have_correct_status(response, 403)
-        have_error_detail(response)
+        have_error_message(response)
 
 
 async def test_delete_one_diary_forbidden(test_db, user_token, user):
@@ -215,7 +215,7 @@ async def test_delete_one_diary_forbidden(test_db, user_token, user):
         response = client.delete(f"/diaries/{diary['id']}", headers={"Authorization": "bearer " + user_token})
         print(response.json())
         have_correct_status(response, 403)
-        have_error_detail(response)
+        have_error_message(response)
 
 
 async def test_delete_one_diary(test_db, admin_token, user):
@@ -228,7 +228,7 @@ async def test_delete_one_diary(test_db, admin_token, user):
 
         response = client.get(f"/diaries/{diary['id']}", headers={"Authorization": "bearer " + admin_token})
         have_correct_status(response, 404)
-        have_error_detail(response)
+        have_error_message(response)
 
 
 async def test_delete_one_diary_reguler(test_db, user_token, user):
@@ -241,4 +241,4 @@ async def test_delete_one_diary_reguler(test_db, user_token, user):
 
         response = client.get(f"/diaries/{diary['id']}", headers={"Authorization": "bearer " + user_token})
         have_correct_status(response, 404)
-        have_error_detail(response)
+        have_error_message(response)

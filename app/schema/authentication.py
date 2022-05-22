@@ -12,7 +12,8 @@ from config import get_settings
 settings = get_settings()
 
 
-class LoginResponse(BaseModel):
+class LoginResponse(UserResponse):
+    message: str = Field(..., description="Response message")
     access_token: str = Field(
         ...,
         example="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImYzZjYxZWQ4LTNhMDYtNDhlNi05NGE4LTkzZTU2ZDg0YjI5NiIsImVtYWlsIjoiZGFmYUBnbWFpbC5jb20iLCJwaG9uZSI6Iis2MjgxMzI5MDgyMzE0czEiLCJpc19hY3RpdmUiOnRydWUsImV4cCI6MTY1MjEwMjk5MCwiaWF0IjoxNjUyMTAyMDkwfQ.SyhCaUvvvB7jMk5T7dEsGScHy6Pe5FqZhIkBEnJggT0",
@@ -24,7 +25,9 @@ class LoginResponse(BaseModel):
     token_type: str = Field(..., example="bearer")
     expires_in: int = Field(..., description="Time until access token expires (in seconds)", example=3600)
     scope: Optional[str] = Field(None, description="Authorize list of actions", example="create")
-    user: UserResponse = Field(..., description="The user who logged in")
+
+    class Config:
+        alias_generator = None
 
 
 class AccessToken(UserResponse):

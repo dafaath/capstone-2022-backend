@@ -66,14 +66,19 @@ essential-generators = "*"
 gunicorn = "*"
 python-dotenv = "*"
 google-cloud-storage = "*"
+requests-toolbelt = "*"
 
 [dev-packages]
 
 [scripts]
 dev = "python start.py"
 test = "pytest"
+testprod = "ENV=test-production pytest"
 isort = "isort app/"
 format = "autopep8 --in-place --recursive --verbose app/"
+dbrevision = "alembic revision --autogenerate" #Upgrade database
+dbupgrade = "alembic upgrade heads" #Upgrade database
+dbhistory = "alembic history" #Show migration history
 
 [requires]
 python_version = "3.9"

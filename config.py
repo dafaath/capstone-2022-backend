@@ -11,6 +11,7 @@ class RunningENV(Enum):
     DEVELOPMENT = "development"
     PRODUCTION = "production"
     TEST = "test"
+    TEST_PRODUCTION = "test-production"
 
 
 class DefaultSettings(BaseSettings):
@@ -36,6 +37,7 @@ class DefaultSettings(BaseSettings):
     google_application_credentials = "service-account.json"  # Google cloud service account
     bucket_name: str = "emodiary-profile-picture"
     static_file_routes: str = "https://storage.googleapis.com/emodiary-profile-picture/"
+    production_base_url: str = "https://emodiary-bangkit.et.r.appspot.com"
 
     class Config:
         use_enum_values = True
@@ -54,6 +56,10 @@ class TestSettings(DefaultSettings):
     static_file_routes: str = "https://storage.googleapis.com/emodiary-profile-picture-test/"
 
 
+class TestProductionSettings(TestSettings):
+    env: RunningENV = RunningENV.TEST_PRODUCTION
+
+
 class ProdSettings(DefaultSettings):
     env: RunningENV = RunningENV.PRODUCTION
 
@@ -69,6 +75,8 @@ def get_settings():
         return DevSettings()
     elif(os.environ.get("ENV") == RunningENV.TEST.value):
         return TestSettings()
+    elif(os.environ.get("ENV") == RunningENV.TEST_PRODUCTION.value):
+        return TestProductionSettings()
     elif(os.environ.get("ENV") == RunningENV.PRODUCTION.value):
         return ProdSettings()
     else:

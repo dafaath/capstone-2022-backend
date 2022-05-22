@@ -36,9 +36,10 @@ def login_user(payload: OAuth2PasswordRequestForm, db: Session):
     return user
 
 
-def create_access_token(data: UserResponse):
-    expires_delta = timedelta(minutes=settings.jwt_access_token_expiry_minutes)
-    expire = datetime.utcnow() + expires_delta
+def create_access_token(data: UserResponse, expire_delta: timedelta = None):
+    if expire_delta is None:
+        expire_delta = timedelta(minutes=settings.jwt_access_token_expiry_minutes)
+    expire = datetime.utcnow() + expire_delta
     now = datetime.utcnow()
 
     # Mengubah id dari UUID menjadi str

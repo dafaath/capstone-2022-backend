@@ -1,18 +1,24 @@
 import asyncio
+from email.errors import StartBoundaryNotFoundDefect
+from tkinter import W
 
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+from fastapi.encoders import jsonable_encoder
+from fastapi.openapi.utils import get_openapi
 from sqlalchemy.orm import Session
 
 from app.database import get_bucket, get_db
 from app.routes import authentication, diary, example, user
-from app.schema.default_response import ResponseTemplate
+from app.schema.default_response import HTTPErrorResponseTemplate, ResponseTemplate, error_reason
 from app.utils.startup import (create_admin_account_if_not_exists,
                                create_test_account_if_not_exists,
                                generate_database_test, write_openapi_file)
 from config import DefaultSettings, get_settings
 
-app = FastAPI(title="emodiary API", version="1.0.0")
+app = FastAPI(responses={400: error_reason("Request error")})
 app.include_router(authentication.router)
 app.include_router(user.router)
 app.include_router(diary.router)
@@ -30,6 +36,47 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+from starlette.exceptions import HTTPException as StarletteHTTPException
+
+
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request, exc: StarletteHTTPException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content=jsonable_encoder(HTTPErrorResponseTemplate(message=exc.detail)),
+    )
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request, exc: RequestValidationError):
+    error_detail = f"{exc.errors()[0]['loc'][1]} {exc.errors()[0]['msg']}"
+    return JSONResponse(
+        status_code=400,
+        content=jsonable_encoder(HTTPErrorResponseTemplate(message=error_detail)),
+    )
+
+
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    openapi_schema = get_openapi(
+        title="Emodiary API",
+        version="1.0.0",
+        description="Emodiary backend api for capstone project in Bangkit 2022",
+        routes=app.routes,
+    )
+    # look for the error 422 and removes it
+    for method in openapi_schema["paths"]:
+        try:
+            del openapi_schema["paths"][method]["post"]["responses"]["422"]
+        except KeyError:
+            pass
+
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+
+app.openapi = custom_openapi
 
 
 @app.on_event("startup")

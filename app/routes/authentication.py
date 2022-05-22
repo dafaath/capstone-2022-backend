@@ -1,3 +1,4 @@
+from datetime import timedelta
 from fastapi import APIRouter, Depends, Form, Header
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
@@ -41,13 +42,39 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(),
     session = create_session(user, user_agent, db)
     refresh_token = create_refresh_token(session, user)
 
-    response = LoginResponse(
+    data = LoginResponse(
+        message="Successfully login",
         access_token=access_token,
         refresh_token=refresh_token,
         token_type="bearer",
         expires_in=settings.jwt_access_token_expiry_minutes * 60,
-        user=UserResponse.from_orm(user))
-    return response
+        **UserResponse.from_orm(user).dict())
+    return data
+
+
+@ router.post("/login-test", description="TEST Version of login, access token only last 10 seconds",
+              status_code=200, response_model=LoginResponse, responses={401: error_reason("Password or email is not correct")})
+def login_test(form_data: OAuth2PasswordRequestForm = Depends(),
+               db: Session = Depends(get_db),
+               user_agent: str = Header(...,
+                                        example="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.54 Safari/537.36",
+                                        description="The sender user agent"),
+               ):
+    user = login_user(form_data, db)
+
+    access_token = create_access_token(
+        UserResponse.from_orm(user), expire_delta=timedelta(seconds=10))
+    session = create_session(user, user_agent, db)
+    refresh_token = create_refresh_token(session, user)
+
+    data = LoginResponse(
+        message="Successfully login test",
+        access_token=access_token,
+        refresh_token=refresh_token,
+        token_type="bearer",
+        expires_in=10,
+        **UserResponse.from_orm(user).dict())
+    return data
 
 
 login_google_desc = f"""This path is for sending google JWT after login with google, you will get access token and refresh token in response.
@@ -73,12 +100,14 @@ async def login_google(
     session = create_session(user, user_agent, db)
     refresh_token = create_refresh_token(session, user)
 
-    response = LoginResponse(
+    data = LoginResponse(
+        message="Successfully login",
         access_token=access_token,
         refresh_token=refresh_token,
         token_type="bearer",
-        expires_in=settings.jwt_access_token_expiry_minutes * 60)
-    return response
+        expires_in=settings.jwt_access_token_expiry_minutes * 60,
+        **UserResponse.from_orm(user).dict())
+    return data
 
 
 @ router.post(
