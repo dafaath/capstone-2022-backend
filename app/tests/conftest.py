@@ -1,17 +1,18 @@
 import asyncio
 
-from app.main import app
-from fastapi.testclient import TestClient
 import pytest
+from fastapi.testclient import TestClient
 from google.cloud.firestore import Client
 from google.cloud.storage import Bucket
 from sqlalchemy.orm import Session, close_all_sessions
 
 from app.database import Base, engine, get_bucket, get_db, get_fs
+from app.main import app
 from app.schema.user import UserResponse
 from app.services.authentication import create_access_token
 from app.services.user import get_user_by_email
-from app.utils.conftest_utils import delete_all_collection, delete_all_object, get_client
+from app.utils.conftest_utils import (delete_all_collection, delete_all_object,
+                                      get_client)
 from app.utils.startup import (create_admin_account_if_not_exists,
                                create_test_account_if_not_exists)
 from config import DefaultSettings, RunningENV, get_settings

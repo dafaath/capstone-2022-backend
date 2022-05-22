@@ -1,4 +1,3 @@
-from starlette.exceptions import HTTPException as StarletteHTTPException
 import asyncio
 
 from fastapi import Depends, FastAPI
@@ -8,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.database import get_bucket, get_db
 from app.routes import authentication, diary, example, user

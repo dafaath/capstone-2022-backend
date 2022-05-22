@@ -4,8 +4,10 @@ from urllib.error import HTTPError
 
 from fastapi.testclient import TestClient
 
-from app.utils.test import (USER_RESPONSE_KEYS, decrypt_access_token_without_verification, have_base_templates,
-                            have_correct_data_properties, have_correct_status,
+from app.utils.test import (USER_RESPONSE_KEYS,
+                            decrypt_access_token_without_verification,
+                            have_base_templates, have_correct_data_properties,
+                            have_correct_status,
                             have_correct_status_and_message,
                             have_data_list_with_correct_properties,
                             have_error_message, random_char, random_digit)

@@ -1,12 +1,11 @@
+import requests_toolbelt
+from fastapi.testclient import TestClient
 from google.cloud.firestore import Client
 from google.cloud.storage import Bucket
-import requests_toolbelt
+from requests_toolbelt import sessions
 
 from app.main import app
-from fastapi.testclient import TestClient
-
 from config import DefaultSettings, RunningENV
-from requests_toolbelt import sessions
 
 
 def delete_all_collection(fs: Client):

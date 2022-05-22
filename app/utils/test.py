@@ -1,7 +1,7 @@
 import random
 import string
-from jose import jwt
 
+from jose import jwt
 from requests import Response
 
 from app.schema.user import UserResponse
