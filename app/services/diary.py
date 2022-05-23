@@ -1,15 +1,16 @@
 from datetime import datetime
 from uuid import uuid4
 
+import six
 from fastapi import HTTPException
 from google.cloud.firestore import Client
+from google.cloud.translate_v2 import Client as TranslateClient
 
 from app.models import User
 from app.schema.authentication import AccessToken
-from app.schema.diary import CreateDiaryBody, DiaryDatabase, TranslateResponse, UpdateDiaryBody
+from app.schema.diary import (CreateDiaryBody, DiaryDatabase,
+                              TranslateResponse, UpdateDiaryBody)
 from app.utils.firestore import document_to_diary
-import six
-from google.cloud.translate_v2 import Client as TranslateClient
 
 
 def translate_content(input: str, translate_client: TranslateClient, translate: bool, target_language: str = "en"):

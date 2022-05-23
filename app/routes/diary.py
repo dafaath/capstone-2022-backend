@@ -3,6 +3,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Query
 from google.cloud.firestore import Client
+from google.cloud.translate_v2 import Client as TranslateClient
 from pydantic import parse_obj_as
 from sqlalchemy.orm import Session
 
@@ -22,7 +23,6 @@ from app.services.diary import (create_diary, delete_diary, get_all_diary,
 from app.services.user import get_user_by_id_or_error
 from app.utils.depedencies import get_admin, get_current_user
 from config import get_settings
-from google.cloud.translate_v2 import Client as TranslateClient
 
 router = APIRouter(prefix="/diaries",
                    tags=["Diary"])
