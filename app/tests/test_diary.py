@@ -134,7 +134,9 @@ async def test_get_admin_user_diaries(test_db, admin_token, client: TestClient):
 
     data = resp["data"]
     data = sorted(data, key=lambda x: x["id"])
+    admin_diaries_ids = list(map(lambda x: x["id"], admin_diaries.copy()))
     new_admin_diaries = sorted(admin_diaries.copy(), key=lambda x: x["id"])
+    data = list(filter(lambda x: x["id"] in admin_diaries_ids, data))
     assert len(data) == len(admin_diaries)
     for i in range(len(data)):
         new_admin_diaries[i]["timeUpdated"] = ""
@@ -154,8 +156,10 @@ async def test_get_test_user_diaries(test_db, user_token, client: TestClient):
 
     data = resp["data"]
     data = sorted(data, key=lambda x: x["id"])
+    user_diaries_ids = list(map(lambda x: x["id"], user_diaries.copy()))
     new_user_diaries = sorted(user_diaries.copy(), key=lambda x: x["id"])
-    assert len(data) == len(user_diaries)
+    data = list(filter(lambda x: x["id"] in user_diaries_ids, data))
+    assert len(data) == len(new_user_diaries)
     for i in range(len(data)):
         new_user_diaries[i]["timeUpdated"] = ""
         data[i]["timeUpdated"] = ""
