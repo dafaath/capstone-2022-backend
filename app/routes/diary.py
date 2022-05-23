@@ -6,7 +6,7 @@ from google.cloud.firestore import Client
 from pydantic import parse_obj_as
 from sqlalchemy.orm import Session
 
-from app.database import get_db, get_fs
+from app.database import get_db, get_fs, get_translate_client
 from app.models import User, UserRole
 from app.schema.authentication import AccessToken
 from app.schema.default_response import error_reason
@@ -22,6 +22,7 @@ from app.services.diary import (create_diary, delete_diary, get_all_diary,
 from app.services.user import get_user_by_id_or_error
 from app.utils.depedencies import get_admin, get_current_user
 from config import get_settings
+from google.cloud.translate_v2 import Client as TranslateClient
 
 router = APIRouter(prefix="/diaries",
                    tags=["Diary"])
@@ -32,11 +33,16 @@ settings = get_settings()
               description="Create new diary",
               status_code=201,
               response_model=CreateDiaryResponse)
-def create_diary_route(body: CreateDiaryBody, fs: Client = Depends(get_fs),
-                       db: Session = Depends(get_db),
-                       current_user: AccessToken = Depends(get_current_user)):
-    user = get_user_by_id_or_error(current_user.id, db)
-    saved_diary = create_diary(body, user, fs)
+def create_diary_route(
+        body: CreateDiaryBody,
+        translate: Optional[bool] = Query(
+            True,
+            description="Set false for testing purposes only (so it can limit the translate cost)"),
+        fs: Client = Depends(get_fs),
+        db: Session = Depends(get_db),
+        translate_client: TranslateClient = Depends(get_translate_client),
+        current_user: AccessToken = Depends(get_current_user)):
+    saved_diary = create_diary(body, current_user.id, fs, translate_client, translate)
     data = DiaryResponseWithoutUser(**saved_diary.dict())
     response = CreateDiaryResponse(
         message="Create diary successful", data=data)
@@ -104,8 +110,12 @@ def get_one_diary_route(
                responses={403: error_reason("The user id in bearer is not matching with path and the user is not admin")})
 def update_diary_route(
         body: UpdateDiaryBody,
+        translate: Optional[bool] = Query(
+            True,
+            description="Set false for testing purposes only (so it can limit the translate cost)"),
         diary_id: UUID = Path(...,
                               description="The diary id in UUID format"),
+        translate_client: TranslateClient = Depends(get_translate_client),
         current_user: AccessToken = Depends(get_current_user),
         fs: Client = Depends(get_fs)):
 
@@ -115,7 +125,7 @@ def update_diary_route(
         raise HTTPException(403, "You are not allowed do this action because you are not the owner of this diary.",
                             headers={"WWW-Authenticate": "Bearer"})
 
-    updated_diary = update_diary(diary, body, fs)
+    updated_diary = update_diary(diary, body, fs, translate_client, translate)
 
     data = DiaryResponseWithoutUser(**updated_diary.dict())
     response = UpdateDiaryResponse(

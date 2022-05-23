@@ -17,6 +17,7 @@ main = DocumentGenerator()
 diaries = []
 admin_diaries = []
 user_diaries = []
+translated_diaries = []
 
 
 async def test_create_diaries_regular(test_db, user_token, client: TestClient):
@@ -25,11 +26,19 @@ async def test_create_diaries_regular(test_db, user_token, client: TestClient):
             "title": main.sentence(),
             "content": main.sentence()
         }
-        response = client.post(f"/diaries/", headers={"Authorization": "bearer " + user_token}, json=data)
+        response = client.post(
+            f"/diaries/",
+            headers={
+                "Authorization": "bearer " +
+                user_token},
+            json=data,
+            params={
+                "translate": False})
         have_correct_status_and_message(response, 201, "create diary")
         have_base_templates(response)
         have_correct_data_properties(response, DIARY_RESPONSE_KEYS)
         data = response.json()["data"]
+        assert data["content"] == data["translatedContent"]
         diaries.append(data)
         user_diaries.append(data)
 
@@ -40,13 +49,44 @@ async def test_create_diaries_admin(test_db, admin_token, client: TestClient):
             "title": main.sentence(),
             "content": main.sentence()
         }
-        response = client.post(f"/diaries/", headers={"Authorization": "bearer " + admin_token}, json=data)
+        response = client.post(
+            f"/diaries/",
+            headers={
+                "Authorization": "bearer " +
+                admin_token},
+            json=data,
+            params={
+                "translate": False})
         have_correct_status_and_message(response, 201, "create diary")
         have_base_templates(response)
         have_correct_data_properties(response, DIARY_RESPONSE_KEYS)
         data = response.json()["data"]
+        assert data["content"] == data["translatedContent"]
         diaries.append(data)
         admin_diaries.append(data)
+
+
+async def test_create_translated_diaries_admin(test_db, admin_token, client: TestClient):
+    body = {
+        "title": "My first diary",
+        "content": "Waktu berjalan ke Barat di waktu pagi hari matahari mengikutiku di belakang."
+    }
+    response = client.post(
+        f"/diaries/",
+        headers={
+            "Authorization": "bearer " +
+            admin_token},
+        json=body)
+    have_correct_status_and_message(response, 201, "create diary")
+    have_base_templates(response)
+    have_correct_data_properties(response, DIARY_RESPONSE_KEYS)
+    data = response.json()["data"]
+    assert data["title"] == data["title"]
+    assert data["content"] == data["content"]
+    assert data["translatedContent"] == "Time went west in the morning the sun followed me behind."
+    diaries.append(data)
+    admin_diaries.append(data)
+    translated_diaries.append(data)
 
 
 async def test_get_all_diaries(test_db, admin_token, client: TestClient):
@@ -55,7 +95,7 @@ async def test_get_all_diaries(test_db, admin_token, client: TestClient):
     print(resp)
 
     assert isinstance(resp["data"], list)
-    common_var["many_diary"] = len(resp["data"]) - (DIARY_COUNT * 2)
+    common_var["many_diary"] = len(resp["data"]) - (DIARY_COUNT * 2 + 1)
 
     have_base_templates(response)
     have_data_list_with_correct_properties(response, DIARY_RESPONSE_KEYS)
@@ -160,11 +200,13 @@ async def test_update_regular(test_db, user_token, client: TestClient):
             headers={
                 "Authorization": "bearer " +
                 user_token},
-            json=body)
+            json=body,
+            params={"translate": False})
         resp = response.json()
         print(resp)
         assert resp["data"]["title"] == diary["title"]
         assert resp["data"]["content"] == new_content
+        assert resp["data"]["content"] == resp["data"]["translatedContent"]
         have_correct_status_and_message(response, 201, "update diary")
         have_base_templates(response)
         have_correct_data_properties(response, DIARY_RESPONSE_KEYS)
@@ -187,14 +229,40 @@ async def test_update_diary_admin(test_db, admin_token, user_token, client: Test
             headers={
                 "Authorization": "bearer " +
                 admin_token},
+            params={"translate": False},
             json=data)
         resp = response.json()
         print(resp)
         assert resp["data"]["title"] == new_title
         assert resp["data"]["content"] == new_content
+        assert resp["data"]["content"] == resp["data"]["translatedContent"]
         have_correct_status_and_message(response, 201, "update diary")
         have_base_templates(response)
         have_correct_data_properties(response, DIARY_RESPONSE_KEYS)
+
+
+async def test_update_translated_diary_admin(test_db, admin_token, user_token, client: TestClient):
+    diary = translated_diaries[0]
+    new_title = "My updated diary"
+    new_content = "aku berjalan mengikuti bayang-bayangku sendiri yang memanjang di depan"
+    data = {
+        "title": new_title,
+        "content": new_content
+    }
+    response = client.patch(
+        f"/diaries/{diary['id']}",
+        headers={
+            "Authorization": "bearer " +
+            admin_token},
+        json=data)
+    resp = response.json()
+    print(resp)
+    assert resp["data"]["title"] == new_title
+    assert resp["data"]["content"] == new_content
+    assert resp["data"]["translatedContent"] == "I walk following my own shadow that extends ahead"
+    have_correct_status_and_message(response, 201, "update diary")
+    have_base_templates(response)
+    have_correct_data_properties(response, DIARY_RESPONSE_KEYS)
 
 
 async def test_update_diary_forbidden(test_db, user_token, client: TestClient):
@@ -209,6 +277,7 @@ async def test_update_diary_forbidden(test_db, user_token, client: TestClient):
             headers={
                 "Authorization": "bearer " +
                 user_token},
+            params={"translate": False},
             json=data)
 
         have_correct_status(response, 403)

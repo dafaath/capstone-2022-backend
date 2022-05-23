@@ -68,6 +68,7 @@ google-cloud-storage = "*"
 requests = "*"
 requests-toolbelt = "*"
 pylint = "*"
+google-cloud-translate = "*"
 
 [dev-packages]
 

@@ -1,4 +1,5 @@
 from datetime import datetime
+from doctest import Example
 from typing import Optional
 
 from pydantic import Field
@@ -69,3 +70,9 @@ class UpdateDiaryResponse(ResponseTemplate):
 
 class DeleteDiaryResponse(ResponseTemplate):
     data: DiaryResponseWithoutUser
+
+
+class TranslateResponse(TemplateModel):
+    translated_text: str
+    detected_source_language: str
+    input: str

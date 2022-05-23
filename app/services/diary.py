@@ -6,23 +6,41 @@ from google.cloud.firestore import Client
 
 from app.models import User
 from app.schema.authentication import AccessToken
-from app.schema.diary import CreateDiaryBody, DiaryDatabase, UpdateDiaryBody
+from app.schema.diary import CreateDiaryBody, DiaryDatabase, TranslateResponse, UpdateDiaryBody
 from app.utils.firestore import document_to_diary
+import six
+from google.cloud.translate_v2 import Client as TranslateClient
 
 
-def create_diary(input: CreateDiaryBody, user: User, fs: Client):
+def translate_content(input: str, translate_client: TranslateClient, translate: bool, target_language: str = "en"):
+    if isinstance(input, six.binary_type):
+        input = input.decode("utf-8")
+
+    if translate:
+        response: str = translate_client.translate(input, target_language="en")
+        translate_response = TranslateResponse(**response)
+    else:
+        translate_response = TranslateResponse(
+            translated_text=input,
+            detected_source_language="id",
+            input=input)
+    return translate_response
+
+
+def create_diary(input: CreateDiaryBody, user_id: str, fs: Client, translate_client: TranslateClient, translate=True):
+    # TODO detect emotion
+    translate_response = translate_content(input.content, translate_client, translate=translate)
+
     id = str(uuid4())
-
-    # TODO Translate content and detect emotion
     time_created = datetime.now()
     time_updated = datetime.now()
     data = DiaryDatabase(
         id=id,
         title=input.title,
         content=input.content,
-        translated_content=input.content,
+        translated_content=translate_response.translated_text,
         emotion="happy",
-        user_id=str(user.id),
+        user_id=user_id,
         time_created=time_created,
         time_updated=time_updated)
     fs.collection('diary').document(id).set(data.dict(exclude={"id"}))
@@ -73,12 +91,20 @@ def get_diary_by_id_or_error(diary_id: str, fs: Client):
     return diary
 
 
-def update_diary(diary: DiaryDatabase, body: UpdateDiaryBody, fs: Client):
+def update_diary(
+        diary: DiaryDatabase,
+        body: UpdateDiaryBody,
+        fs: Client,
+        translate_client: TranslateClient,
+        translate=True):
     data = body.dict(exclude_none=True)
 
     for key, value in data.items():
         setattr(diary, key, value)
+
+    translate_response = translate_content(diary.content, translate_client, translate=translate)
     diary.time_updated = datetime.now()
+    diary.translated_content = translate_response.translated_text
 
     fs.collection('diary').document(diary.id).update(diary.dict(exclude={"id"}))
     return diary
