@@ -1,4 +1,3 @@
-from doctest import Example
 
 from pydantic import Field, validator
 

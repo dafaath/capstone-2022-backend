@@ -1,5 +1,4 @@
 from datetime import datetime
-from doctest import Example
 from typing import Optional
 
 from pydantic import Field

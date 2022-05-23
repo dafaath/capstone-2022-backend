@@ -1,7 +1,7 @@
 from essential_generators import DocumentGenerator
 from fastapi.testclient import TestClient
 
-from app.utils.test import (DIARY_RESPONSE_KEYS, USER_RESPONSE_KEYS,
+from app.utils.test import (DIARY_RESPONSE_KEYS,
                             decrypt_access_token_without_verification,
                             have_base_templates, have_correct_data_properties,
                             have_correct_status,
@@ -266,7 +266,7 @@ async def test_update_translated_diary_admin(test_db, admin_token, user_token, c
 
 
 async def test_update_diary_forbidden(test_db, user_token, client: TestClient):
-    user = decrypt_access_token_without_verification(user_token)
+    decrypt_access_token_without_verification(user_token)
     for diary in admin_diaries:
         new_content = "new content forbidden"
         data = {

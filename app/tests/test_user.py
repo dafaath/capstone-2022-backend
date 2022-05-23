@@ -1,11 +1,9 @@
 import os
 import urllib.request
-from urllib.error import HTTPError
 
 from essential_generators import DocumentGenerator
 from fastapi.testclient import TestClient
 
-from app.schema.user import UserResponse
 from app.utils.test import (USER_RESPONSE_KEYS, UserResponsePlus,
                             decrypt_access_token_without_verification,
                             get_access_token_login, have_base_templates,
@@ -36,7 +34,7 @@ async def test_create_user(test_db, client: TestClient):
 
         have_base_templates(response)
         have_correct_status_and_message(response, 201, "Registration successful")
-        have_correct_data_properties
+        have_correct_data_properties(response, USER_RESPONSE_KEYS)
         access_token = get_access_token_login(client, data["email"], body["password"])
         users_list.append(UserResponsePlus(**data, access_token=access_token, password=body["password"]))
 
@@ -126,7 +124,7 @@ async def test_change_user_photo_forbidden(test_db, user_token, admin_token, cli
 
     filename = 'image1.png'
     full_path_filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'image', filename)
-    with open(full_path_filename, "rb") as f:
+    with open(full_path_filename, "rb") as file:
         response = client.post(
             f"/users/{admin_id}/photo",
             headers={
@@ -135,7 +133,7 @@ async def test_change_user_photo_forbidden(test_db, user_token, admin_token, cli
             files={
                 "file": (
                     filename,
-                    f,
+                    file,
                     "image/jpg")})
 
     have_correct_status(response, 403)
@@ -160,7 +158,7 @@ async def test_change_user_photo_wrong_format(test_db, user_token, client: TestC
                     f,
                     "image/jpg")})
 
-    have_correct_status(response, 422)
+    have_correct_status(response, 400)
     have_error_message(response)
 
 

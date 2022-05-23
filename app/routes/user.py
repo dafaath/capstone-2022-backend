@@ -13,8 +13,7 @@ from app.schema.user import (DeleteUserResponse, GetAllUserResponse,
                              GetOneUserResponse, RegisterBody,
                              RegisterResponse, SaveUserPhotoResponse,
                              UpdateUserBody, UpdateUserResponse, UserResponse)
-from app.services.user import (delete_user, get_all_user, get_user_by_email,
-                               get_user_by_id, get_user_by_id_or_error,
+from app.services.user import (delete_user, get_all_user, get_user_by_id_or_error,
                                register_user, save_user_profile_picture,
                                update_user)
 from app.utils.depedencies import get_admin, get_current_user
@@ -38,7 +37,7 @@ def register(body: RegisterBody, db: Session = Depends(get_db)):
               description="Upload user profile picture",
               status_code=201,
               response_model=SaveUserPhotoResponse,
-              responses={422: error_reason("The file type is not image"),
+              responses={400: error_reason("The file type is not image"),
                          403: error_reason("The user id in bearer is not matching with path and the user is not admin")})
 def save_user_picture_route(
         file: UploadFile = File(..., description="The new user profile picture, must be in png, jpeg, or jpg format"),

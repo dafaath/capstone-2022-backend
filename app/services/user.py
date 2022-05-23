@@ -10,7 +10,6 @@ from sqlalchemy.orm import Session
 
 from app.models import User, UserRole
 from app.schema.user import RegisterBody, UpdateUserBody
-from app.utils.file import convert_content_type_to_format
 
 
 def register_user(user: RegisterBody, db: Session, role: UserRole = UserRole.REGULAR):
@@ -33,7 +32,7 @@ def save_user_profile_picture(user: User, file: UploadFile, bucket: Bucket, db: 
     file_type = imghdr.what(file.file)
 
     if file_type not in allowed_file_type:
-        raise HTTPException(422, "The file type is not " + " or ".join(allowed_file_type))
+        raise HTTPException(400, "The file type is not " + " or ".join(allowed_file_type))
 
     user_old_photo = user._photo
     saved_file_name = str(uuid4()) + "." + file_type

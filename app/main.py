@@ -1,6 +1,6 @@
 import asyncio
 
-from fastapi import Depends, FastAPI
+from fastapi import  FastAPI
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from app.database import get_bucket, get_db
+from app.database import get_db
 from app.routes import authentication, diary, example, user
 from app.schema.default_response import (HTTPErrorResponseTemplate,
                                          ResponseTemplate, error_reason)
@@ -64,12 +64,15 @@ def custom_openapi():
         description="Emodiary backend api for capstone project in Bangkit 2022",
         routes=app.routes,
     )
+    methods = ["get", "post", "put", "delete", "patch"]
     # look for the error 422 and removes it
-    for method in openapi_schema["paths"]:
-        try:
-            del openapi_schema["paths"][method]["post"]["responses"]["422"]
-        except KeyError:
-            pass
+    for path in openapi_schema["paths"]:
+        for method in methods:
+            print(path, method)
+            try:
+                del openapi_schema["paths"][path][method]["responses"]["422"]
+            except KeyError:
+                pass
 
     app.openapi_schema = openapi_schema
     return app.openapi_schema

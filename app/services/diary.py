@@ -6,8 +6,6 @@ from fastapi import HTTPException
 from google.cloud.firestore import Client
 from google.cloud.translate_v2 import Client as TranslateClient
 
-from app.models import User
-from app.schema.authentication import AccessToken
 from app.schema.diary import (CreateDiaryBody, DiaryDatabase,
                               TranslateResponse, UpdateDiaryBody)
 from app.utils.firestore import document_to_diary

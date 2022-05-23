@@ -1,7 +1,6 @@
 from typing import Optional
 from xmlrpc.client import Boolean
 
-from fastapi import Depends
 from jose import ExpiredSignatureError, JWTError, jwt
 
 from app.schema.authentication import AccessToken, RefreshToken

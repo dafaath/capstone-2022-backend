@@ -8,19 +8,16 @@ from pydantic import parse_obj_as
 from sqlalchemy.orm import Session
 
 from app.database import get_db, get_fs, get_translate_client
-from app.models import User, UserRole
+from app.models import UserRole
 from app.schema.authentication import AccessToken
 from app.schema.default_response import error_reason
 from app.schema.diary import (CreateDiaryBody, CreateDiaryResponse,
                               DeleteDiaryResponse, DiaryResponseWithoutUser,
-                              DiaryResponseWithUser, GetAllDiaryResponse,
-                              GetOneDiaryResponse, UpdateDiaryBody,
-                              UpdateDiaryResponse)
-from app.schema.user import UserResponse
+                              GetAllDiaryResponse, GetOneDiaryResponse,
+                              UpdateDiaryBody, UpdateDiaryResponse)
 from app.services.diary import (create_diary, delete_diary, get_all_diary,
-                                get_diary_by_id, get_diary_by_id_or_error,
-                                get_user_diary, update_diary)
-from app.services.user import get_user_by_id_or_error
+                                get_diary_by_id_or_error, get_user_diary,
+                                update_diary)
 from app.utils.depedencies import get_admin, get_current_user
 from config import get_settings
 

@@ -2,11 +2,11 @@ from datetime import datetime
 from typing import Optional
 
 from fastapi import Path
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import Field
 
 from app.schema.default_response import ResponseTemplate
 from app.schema.user import UserResponse
-from app.utils.schema import TemplateModel, to_camel
+from app.utils.schema import TemplateModel
 from config import get_settings
 
 settings = get_settings()

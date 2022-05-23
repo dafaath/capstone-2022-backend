@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Header, Request
+from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 
 from app import templates

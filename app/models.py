@@ -2,8 +2,7 @@ import datetime
 import enum
 from uuid import uuid4
 
-from sqlalchemy import (Boolean, Column, DateTime, Enum, ForeignKey, Integer,
-                        String)
+from sqlalchemy import (Boolean, Column, DateTime, Enum, ForeignKey, String)
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship

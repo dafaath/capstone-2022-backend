@@ -1,5 +1,5 @@
 from humps import camelize
-from pydantic import BaseConfig, BaseModel, Extra, validator
+from pydantic import BaseConfig, BaseModel, validator
 
 
 def to_camel(string):
