@@ -4,8 +4,8 @@ from fastapi.testclient import TestClient
 from app.utils.jwt import decrypt_access_token, decrypt_refresh_token
 from app.utils.test import (USER_RESPONSE_KEYS, have_base_templates,
                             have_correct_data_properties, have_correct_status,
-                            have_correct_status_and_message, have_error_message,
-                            random_char)
+                            have_correct_status_and_message,
+                            have_error_message, random_char)
 
 common_var = {}
 main = DocumentGenerator()

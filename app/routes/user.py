@@ -13,9 +13,9 @@ from app.schema.user import (DeleteUserResponse, GetAllUserResponse,
                              GetOneUserResponse, RegisterBody,
                              RegisterResponse, SaveUserPhotoResponse,
                              UpdateUserBody, UpdateUserResponse, UserResponse)
-from app.services.user import (delete_user, get_all_user, get_user_by_id_or_error,
-                               register_user, save_user_profile_picture,
-                               update_user)
+from app.services.user import (delete_user, get_all_user,
+                               get_user_by_id_or_error, register_user,
+                               save_user_profile_picture, update_user)
 from app.utils.depedencies import get_admin, get_current_user
 from config import get_settings
 
