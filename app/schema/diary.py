@@ -1,3 +1,4 @@
+import enum
 from datetime import datetime
 from typing import Optional
 
@@ -6,6 +7,20 @@ from pydantic import Field
 from app.schema.default_response import ResponseTemplate
 from app.schema.user import UserResponse
 from app.utils.schema import TemplateModel
+
+
+class EmotionCategory(enum.Enum):
+    SADNESS = "sadness"
+    JOY = "joy"
+    ANGER = "anger"
+    FEAR = "fear"
+    LOVE = "love"
+    SURPRISE = "surprise"
+
+
+class ArticleLanguage(enum.Enum):
+    ID = "id"
+    EN = "en"
 
 
 class BaseDiary(TemplateModel):

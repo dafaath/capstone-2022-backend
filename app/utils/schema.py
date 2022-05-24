@@ -1,3 +1,5 @@
+import enum
+
 from humps import camelize
 from pydantic import BaseConfig, BaseModel, validator
 
@@ -29,3 +31,8 @@ class TemplateModel(BaseModel):
                 return v_strip
         else:
             return v
+
+
+def convert_enum_to_string(myenum: enum.Enum):
+    enum_list = [e.value for e in myenum]
+    return f"({', '.join(enum_list)})"

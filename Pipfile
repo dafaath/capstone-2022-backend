@@ -69,6 +69,7 @@ requests = "*"
 requests-toolbelt = "*"
 google-cloud-translate = "*"
 autoflake = "*"
+google-search-results = "*"
 
 [dev-packages]
 
@@ -78,9 +79,11 @@ test = "pytest"
 testprod = "ENV=test-production pytest"
 isort = "isort app/"
 format = "autopep8 --in-place --recursive --verbose app/"
+rui = "autoflake --remove-all-unused-imports --in-place app/**/*.py" #Remove unused import
 dbrevision = "alembic revision --autogenerate" #Upgrade database
 dbupgrade = "alembic upgrade heads" #Upgrade database
 dbhistory = "alembic history" #Show migration history
+
 
 [requires]
 python_version = "3.9"

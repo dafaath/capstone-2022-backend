@@ -9,7 +9,7 @@ from app.utils.test import (USER_RESPONSE_KEYS, UserResponsePlus,
                             get_access_token_login, have_base_templates,
                             have_correct_data_properties, have_correct_status,
                             have_correct_status_and_message,
-                            have_data_list_with_correct_properties,
+                            have_data_list_with_exact_properties,
                             have_error_message, random_char, random_digit)
 from config import get_settings
 
@@ -46,7 +46,7 @@ async def test_get_all_users(test_db, admin_token, client: TestClient):
     common_var["many_user"] = len(resp["data"]) - USER_COUNT
     print(resp)
     have_base_templates(response)
-    have_data_list_with_correct_properties(response, USER_RESPONSE_KEYS)
+    have_data_list_with_exact_properties(response, USER_RESPONSE_KEYS)
     have_correct_status_and_message(response, 200, "get all users")
 
 

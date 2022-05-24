@@ -6,7 +6,7 @@ from app.utils.test import (DIARY_RESPONSE_KEYS,
                             have_base_templates, have_correct_data_properties,
                             have_correct_status,
                             have_correct_status_and_message,
-                            have_data_list_with_correct_properties,
+                            have_data_list_with_exact_properties,
                             have_error_message)
 from config import get_settings
 
@@ -98,7 +98,7 @@ async def test_get_all_diaries(test_db, admin_token, client: TestClient):
     common_var["many_diary"] = len(resp["data"]) - (DIARY_COUNT * 2 + 1)
 
     have_base_templates(response)
-    have_data_list_with_correct_properties(response, DIARY_RESPONSE_KEYS)
+    have_data_list_with_exact_properties(response, DIARY_RESPONSE_KEYS)
     have_correct_status_and_message(response, 200, "get all diaries")
 
 
@@ -129,7 +129,7 @@ async def test_get_admin_user_diaries(test_db, admin_token, client: TestClient):
     resp = response.json()
     print(resp)
     have_base_templates(response)
-    have_data_list_with_correct_properties(response, DIARY_RESPONSE_KEYS)
+    have_data_list_with_exact_properties(response, DIARY_RESPONSE_KEYS)
     have_correct_status_and_message(response, 200, "get all diaries")
 
     data = resp["data"]
@@ -151,7 +151,7 @@ async def test_get_test_user_diaries(test_db, user_token, client: TestClient):
     resp = response.json()
     print(resp)
     have_base_templates(response)
-    have_data_list_with_correct_properties(response, DIARY_RESPONSE_KEYS)
+    have_data_list_with_exact_properties(response, DIARY_RESPONSE_KEYS)
     have_correct_status_and_message(response, 200, "get all diaries")
 
     data = resp["data"]

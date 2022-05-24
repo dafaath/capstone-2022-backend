@@ -17,6 +17,12 @@ DIARY_RESPONSE_KEYS = [
     "timeCreated",
     "timeUpdated",
     "userId"]
+ARTICLE_RESPONSE_KEYS = ["id",
+                         "language",
+                         "position",
+                         "title",
+                         "link",
+                         "displayedLink"]
 
 
 def have_error_message(response: Response):
@@ -41,17 +47,63 @@ def have_correct_status_and_message(response: Response, code: int, message: str)
 
 def have_correct_data_properties(response: Response, keys: list[str]):
     resp = response.json()
-    dict_have_correct_properties(resp["data"], keys)
+    dict_have_exact_properties(resp["data"], keys)
 
 
-def have_data_list_with_correct_properties(response: Response, keys: list[str]):
+def have_data_list_with_minimum_properties(response: Response, keys: list[str]):
     resp = response.json()
     assert isinstance(resp["data"], list)
     for item in resp["data"]:
-        dict_have_correct_properties(item, keys)
+        dict_have_minimum_properties(item, keys)
 
 
-def dict_have_correct_properties(data: dict, keys: list[str]):
+def have_data_list_with_exact_properties(response: Response, keys: list[str]):
+    resp = response.json()
+    assert isinstance(resp["data"], list)
+    for item in resp["data"]:
+        dict_have_exact_properties(item, keys)
+
+
+def is_sub_array(A: list, B: list):
+    n = len(A)
+    m = len(B)
+
+    # Two pointers to traverse the arrays
+    i = 0
+    j = 0
+
+    # Traverse both arrays simultaneously
+    while (i < n and j < m):
+
+        # If element matches
+        # increment both pointers
+        if (A[i] == B[j]):
+
+            i += 1
+            j += 1
+
+            # If array B is completely
+            # traversed
+            if (j == m):
+                return True
+
+        # If not,
+        # increment i and reset j
+        else:
+            i = i - j + 1
+            j = 0
+    return False
+
+
+def dict_have_minimum_properties(data: dict, keys: list[str]):
+    supposed_keys = keys
+    current_keys = list(data.keys())
+    print(supposed_keys, current_keys)
+    for sk in supposed_keys:
+        assert sk in current_keys
+
+
+def dict_have_exact_properties(data: dict, keys: list[str]):
     supposed_keys = set(keys)
     current_keys = set(data.keys())
     print(supposed_keys, current_keys)
