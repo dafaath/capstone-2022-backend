@@ -25,6 +25,10 @@ resource "google_project_service" "appengine" {
   service = "appengine.googleapis.com"
 }
 
+resource "google_project_service" "cloudbuild" {
+  service = "cloudbuild.googleapis.com"
+}
+
 resource "google_project_service" "cloudsql" {
   count   = local.only_in_production
   service = "sqladmin.googleapis.com"
