@@ -33,11 +33,11 @@ class DefaultSettings(BaseSettings):
     jwt_access_token_expiry_minutes: int = 60
     jwt_algorithm: str = "HS256"
     google_client_id: str = "137562844094-8v9i3tc76635h2hrm7kk0f2dg7sodnkk.apps.googleusercontent.com"
-    google_cloud_project_id: str = "emodiary-bangkit"
+    google_cloud_project_id: str = "emodiary-app"
     google_application_credentials = "service-account.json"  # Google cloud service account
-    bucket_name: str = "emodiary-profile-picture"
-    static_file_routes: str = "https://storage.googleapis.com/emodiary-profile-picture/"
-    production_base_url: str = "https://emodiary-bangkit.et.r.appspot.com"
+    bucket_name: str = "emodiary-app-photo-profile"
+    static_file_routes: str = "https://storage.googleapis.com/emodiary-app-photo-profile/"
+    production_base_url: str = "https://emodiary-app.et.r.appspot.com"
 
     class Config:
         use_enum_values = True
@@ -50,10 +50,10 @@ class DevSettings(DefaultSettings):
 class TestSettings(DefaultSettings):
     env: RunningENV = RunningENV.TEST
     db_name: str = "test_emodiary"
-    google_cloud_project_id: str = "emodiary-test"
+    google_cloud_project_id: str = "emodiary-app-test"
     google_application_credentials = "service-account-test.json"  # Google cloud service account
-    bucket_name: str = "emodiary-profile-picture-test"
-    static_file_routes: str = "https://storage.googleapis.com/emodiary-profile-picture-test/"
+    bucket_name: str = "emodiary-app-test-photo-profile"
+    static_file_routes: str = "https://storage.googleapis.com/emodiary-app-test-photo-profile/"
 
 
 class TestProductionSettings(TestSettings):

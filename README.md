@@ -8,8 +8,8 @@ You have multiple option for the documentation, all of the option below is a sub
   - Go to /docs to see a swagger documentation
   - Go to /redoc to see a redoc documentation (Alternative to swagger)
 - You can directly go to below url:
-  - `https://emodiary-bangkit.et.r.appspot.com/docs` see a swagger documentation
-  - `https://emodiary-bangkit.et.r.appspot.com/redoc` see a redoc documentation (Alternative to swagger)
+  - `https://emodiary-app.et.r.appspot.com/docs` see a swagger documentation
+  - `https://emodiary-app.et.r.appspot.com/redoc` see a redoc documentation (Alternative to swagger)
 - [Postman public workspace](https://www.postman.com/dafaathaullah/workspace/emodiary/overview)
 
 ## How to run
