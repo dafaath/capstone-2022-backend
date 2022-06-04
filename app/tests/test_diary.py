@@ -1,7 +1,7 @@
 from essential_generators import DocumentGenerator
 from fastapi.testclient import TestClient
-from app.schema.diary import EmotionCategory
 
+from app.schema.diary import EmotionCategory
 from app.utils.test import (DIARY_RESPONSE_KEYS,
                             decrypt_access_token_without_verification,
                             have_base_templates, have_correct_data_properties,
@@ -34,8 +34,7 @@ async def test_emotion_summary_null(test_db, user_token, client: TestClient):
         have_correct_status_and_message(response, 200, "emotion summary")
         have_base_templates(response)
         data = response.json()["data"]
-        assert data["emotion"] == None
-
+        assert data["emotion"] is None
 
 
 async def test_create_diaries_regular(test_db, user_token, client: TestClient):
