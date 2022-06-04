@@ -162,9 +162,9 @@ def validate_google_token(token: str):
         raise HTTPException(401, "The google token is invalid")
 
 
-def register_google_user(email: str, db: Session):
+def register_google_user(email: str, fullname: str, db: Session):
     db_user = User(
-        email=email)
+        email=email, fullname=fullname)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)

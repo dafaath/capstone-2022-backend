@@ -69,7 +69,6 @@ def custom_openapi():
     # look for the error 422 and removes it
     for path in openapi_schema["paths"]:
         for method in methods:
-            print(path, method)
             try:
                 del openapi_schema["paths"][path][method]["responses"]["422"]
             except KeyError:

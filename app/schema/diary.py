@@ -6,7 +6,7 @@ from pydantic import Field
 
 from app.schema.default_response import ResponseTemplate
 from app.schema.user import UserResponse
-from app.utils.schema import TemplateModel
+from app.utils.schema import TemplateModel, convert_enum_to_string
 
 
 class EmotionCategory(enum.Enum):
@@ -32,7 +32,10 @@ class DiaryResponseBase(BaseDiary):
     id: str = Field(..., description="Diary id in UUID format")
     translated_content: str = Field(...,
                                     description="The diary content in english after translating with google translate")
-    emotion: str = Field(..., description="Diary emotion based on machine learning output")
+    emotion: EmotionCategory = Field(
+        ...,
+        description="Diary emotion based on machine learning output, possible values: " +
+        convert_enum_to_string(EmotionCategory))
     user_id: str = Field(..., description="The user id in UUID format that owns this diary")
     time_created: datetime = Field(..., description="The time this object is created, represented in ISO 8601 format",
                                    example="2022-05-12T14:30:28.304902+07:00")
@@ -67,6 +70,17 @@ class CreateDiaryResponse(ResponseTemplate):
 
 class GetAllDiaryResponse(ResponseTemplate):
     data: list[DiaryResponseWithoutUser]
+
+
+class GetEmotionSummaryResponseData(TemplateModel):
+    emotion: Optional[EmotionCategory] = Field(
+        ...,
+        description="The summary of 10 last diary emotion, possible values: Null (if there is no diary yet) or" +
+        convert_enum_to_string(EmotionCategory))
+
+
+class GetEmotionSummaryResponse(ResponseTemplate):
+    data: GetEmotionSummaryResponseData
 
 
 class GetOneDiaryResponse(ResponseTemplate):

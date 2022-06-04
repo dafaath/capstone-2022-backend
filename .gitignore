@@ -297,6 +297,7 @@ dist
 
 # Google service account
 service-account*.json
+client-secret*.json
 
 # Terraform
 

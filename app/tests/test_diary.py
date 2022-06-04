@@ -1,5 +1,6 @@
 from essential_generators import DocumentGenerator
 from fastapi.testclient import TestClient
+from app.schema.diary import EmotionCategory
 
 from app.utils.test import (DIARY_RESPONSE_KEYS,
                             decrypt_access_token_without_verification,
@@ -20,6 +21,23 @@ user_diaries = []
 translated_diaries = []
 
 
+async def test_emotion_summary_null(test_db, user_token, client: TestClient):
+    response = client.get("/diaries", headers={"Authorization": "bearer " + user_token})
+    resp = response.json()
+    assert isinstance(resp["data"], list)
+    if len(resp["data"]) == 0:
+        response = client.get(
+            f"/diaries/emotions",
+            headers={
+                "Authorization": "bearer " +
+                user_token})
+        have_correct_status_and_message(response, 200, "emotion summary")
+        have_base_templates(response)
+        data = response.json()["data"]
+        assert data["emotion"] == None
+
+
+
 async def test_create_diaries_regular(test_db, user_token, client: TestClient):
     for i in range(DIARY_COUNT):
         data = {
@@ -33,7 +51,8 @@ async def test_create_diaries_regular(test_db, user_token, client: TestClient):
                 user_token},
             json=data,
             params={
-                "translate": False})
+                "translate": False,
+                "emotion": EmotionCategory.ANGER.value})
         have_correct_status_and_message(response, 201, "create diary")
         have_base_templates(response)
         have_correct_data_properties(response, DIARY_RESPONSE_KEYS)
@@ -41,6 +60,18 @@ async def test_create_diaries_regular(test_db, user_token, client: TestClient):
         assert data["content"] == data["translatedContent"]
         diaries.append(data)
         user_diaries.append(data)
+
+
+async def test_emotion_summary_regular(test_db, user_token, client: TestClient):
+    response = client.get(
+        f"/diaries/emotions",
+        headers={
+            "Authorization": "bearer " +
+            user_token})
+    have_correct_status_and_message(response, 200, "emotion summary")
+    have_base_templates(response)
+    data = response.json()["data"]
+    assert data["emotion"]
 
 
 async def test_create_diaries_admin(test_db, admin_token, client: TestClient):
@@ -56,6 +87,7 @@ async def test_create_diaries_admin(test_db, admin_token, client: TestClient):
                 admin_token},
             json=data,
             params={
+                "emotion": EmotionCategory.FEAR.value,
                 "translate": False})
         have_correct_status_and_message(response, 201, "create diary")
         have_base_templates(response)
@@ -64,6 +96,18 @@ async def test_create_diaries_admin(test_db, admin_token, client: TestClient):
         assert data["content"] == data["translatedContent"]
         diaries.append(data)
         admin_diaries.append(data)
+
+
+async def test_emotion_summary_admin(test_db, admin_token, client: TestClient):
+    response = client.get(
+        f"/diaries/emotions",
+        headers={
+            "Authorization": "bearer " +
+            admin_token})
+    have_correct_status_and_message(response, 200, "emotion summary")
+    have_base_templates(response)
+    data = response.json()["data"]
+    assert data["emotion"]
 
 
 async def test_create_translated_diaries_admin(test_db, admin_token, client: TestClient):

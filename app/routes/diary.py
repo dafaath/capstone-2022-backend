@@ -11,12 +11,20 @@ from app.database import get_db, get_fs, get_translate_client
 from app.models import UserRole
 from app.schema.authentication import AccessToken
 from app.schema.default_response import error_reason
-from app.schema.diary import (CreateDiaryBody, CreateDiaryResponse,
-                              DeleteDiaryResponse, DiaryResponseWithoutUser,
-                              GetAllDiaryResponse, GetOneDiaryResponse,
-                              UpdateDiaryBody, UpdateDiaryResponse)
+from app.schema.diary import (
+    CreateDiaryBody,
+    CreateDiaryResponse,
+    DeleteDiaryResponse,
+    DiaryResponseWithoutUser,
+    EmotionCategory,
+    GetAllDiaryResponse,
+    GetEmotionSummaryResponse,
+    GetEmotionSummaryResponseData,
+    GetOneDiaryResponse,
+    UpdateDiaryBody,
+    UpdateDiaryResponse)
 from app.services.diary import (create_diary, delete_diary, get_all_diary,
-                                get_diary_by_id_or_error, get_user_diary,
+                                get_diary_by_id_or_error, get_emotion_summary, get_user_diary,
                                 update_diary)
 from app.utils.depedencies import get_admin, get_current_user
 from config import get_settings
@@ -35,11 +43,14 @@ def create_diary_route(
         translate: Optional[bool] = Query(
             True,
             description="Set false for testing purposes only (so it can limit the translate cost)"),
+        emotion: Optional[EmotionCategory] = Query(
+            None,
+            description="Force set an emotion to this diary, use for testing purposes only"),
         fs: Client = Depends(get_fs),
         db: Session = Depends(get_db),
         translate_client: TranslateClient = Depends(get_translate_client),
         current_user: AccessToken = Depends(get_current_user)):
-    saved_diary = create_diary(body, current_user.id, fs, translate_client, translate)
+    saved_diary = create_diary(body, current_user.id, fs, translate_client, translate=translate, emotion=emotion)
     data = DiaryResponseWithoutUser(**saved_diary.dict())
     response = CreateDiaryResponse(
         message="Create diary successful", data=data)
@@ -60,6 +71,23 @@ def get_all_diary_route(page: Optional[int] = Query(None,
     diaries_response = parse_obj_as(list[DiaryResponseWithoutUser], diaries)
     response = GetAllDiaryResponse(
         message="Successfully get all diaries in database", data=diaries_response)
+    return response
+
+
+@ router.get("/emotions",
+             description="Get emotion from the last 10 diary",
+             status_code=200,
+             response_model=GetEmotionSummaryResponse)
+def get_emotion_summary_route(current_user: AccessToken = Depends(get_current_user), fs: Client = Depends(get_fs)):
+    page = 1
+    size = 10
+    diaries = get_user_diary(page, size, current_user.id, fs)
+    emotion = get_emotion_summary(diaries)
+    response = GetEmotionSummaryResponse(
+        message="Successfully get emotion summary for " +
+        current_user.fullname,
+        data=GetEmotionSummaryResponseData(
+            emotion=emotion))
     return response
 
 

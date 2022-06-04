@@ -53,8 +53,11 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(),
     return data
 
 
-@ router.post("/login-test", description="TEST Version of login, access token only last 10 seconds",
-              status_code=200, response_model=LoginResponse, responses={401: error_reason("Password or email is not correct")})
+@ router.post("/login-test",
+              description="TEST Version of login, access token only last 10 seconds",
+              status_code=200,
+              response_model=LoginResponse,
+              responses={401: error_reason("Password or email is not correct")})
 def login_test(form_data: OAuth2PasswordRequestForm = Depends(),
                db: Session = Depends(get_db),
                user_agent: str = Header(...,
@@ -94,7 +97,7 @@ async def login_google(
     user = get_user_by_email(payload.email, db)
     if user is None:
         # User not registered in database
-        user = register_google_user(payload.email, db)
+        user = register_google_user(payload.email, payload.name, db)
 
     access_token = create_access_token(
         UserResponse.from_orm(user))

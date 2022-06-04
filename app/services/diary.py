@@ -1,4 +1,5 @@
 from datetime import datetime
+import enum
 from uuid import uuid4
 
 import six
@@ -6,7 +7,7 @@ from fastapi import HTTPException
 from google.cloud.firestore import Client
 from google.cloud.translate_v2 import Client as TranslateClient
 
-from app.schema.diary import (CreateDiaryBody, DiaryDatabase,
+from app.schema.diary import (CreateDiaryBody, DiaryDatabase, EmotionCategory,
                               TranslateResponse, UpdateDiaryBody)
 from app.utils.firestore import document_to_diary
 
@@ -26,8 +27,18 @@ def translate_content(input: str, translate_client: TranslateClient, translate: 
     return translate_response
 
 
-def create_diary(input: CreateDiaryBody, user_id: str, fs: Client, translate_client: TranslateClient, translate=True):
-    # TODO detect emotion
+def create_diary(
+        input: CreateDiaryBody,
+        user_id: str,
+        fs: Client,
+        translate_client: TranslateClient,
+        translate: bool = True,
+        emotion: EmotionCategory = None):
+
+    if emotion is None:
+        # TODO detect emotion
+        emotion = EmotionCategory.JOY
+
     translate_response = translate_content(input.content, translate_client, translate=translate)
 
     id = str(uuid4())
@@ -38,7 +49,7 @@ def create_diary(input: CreateDiaryBody, user_id: str, fs: Client, translate_cli
         title=input.title,
         content=input.content,
         translated_content=translate_response.translated_text,
-        emotion="happy",
+        emotion=emotion,
         user_id=user_id,
         time_created=time_created,
         time_updated=time_updated)
@@ -66,6 +77,22 @@ def get_user_diary(page: int, size: int, user_id: str, fs: Client):
     documents = ref.get()
     diaries = [document_to_diary(docs) for docs in documents if document_to_diary(docs) is not None]
     return diaries
+
+
+def get_emotion_summary(diaries: list[DiaryDatabase]):
+    emotion_freq = {}
+    for diary in diaries:
+        if diary.emotion not in emotion_freq:
+            emotion_freq[diary.emotion] = 1
+        else:
+            emotion_freq[diary.emotion] += 1
+    emotion = None
+    max = 0
+    for i, k in enumerate(emotion_freq):
+        if i == 0 or emotion_freq[k] > max:
+            max = emotion_freq[k]
+            emotion = k
+    return emotion
 
 
 def get_diary_by_id(diary_id: str, fs: Client):
