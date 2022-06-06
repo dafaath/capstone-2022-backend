@@ -1,3 +1,4 @@
+
 import enum
 from datetime import datetime
 from typing import Optional
@@ -21,6 +22,44 @@ class EmotionCategory(enum.Enum):
 class ArticleLanguage(enum.Enum):
     ID = "id"
     EN = "en"
+
+
+class DetectedExtensions(TemplateModel):
+    skor: Optional[float]
+    suara: Optional[int]
+    langkah: Optional[int]
+
+
+class Top(TemplateModel):
+    detected_extensions: DetectedExtensions
+    extensions: list[str]
+
+
+class RichSnippet(TemplateModel):
+    top: Top
+
+
+class ArticleBase(TemplateModel):
+    emotion: EmotionCategory = Field(..., description="The emotion category from ML, possible value: " +
+                                     convert_enum_to_string(EmotionCategory))
+    language: ArticleLanguage = Field(..., description="The language of the article, possible value: " +
+                                      convert_enum_to_string(ArticleLanguage))
+    position: int = Field(..., description="The result position in google search, lower is top")
+    title: str
+    link: str
+    displayed_link: str
+    snippet: Optional[str]
+    snippet_highlighted_words: Optional[list[str]]
+    date: Optional[str]
+    rich_snippet: Optional[RichSnippet]
+
+
+class ArticleDatabase(ArticleBase):
+    pass
+
+
+class Article(ArticleBase):
+    id: str = Field(..., description="Article id in UUID format")
 
 
 class BaseDiary(TemplateModel):
@@ -52,26 +91,6 @@ class DiaryResponseWithoutUser(DiaryResponseBase):
     pass
 
 
-class CreateDiaryBody(BaseDiary):
-    pass
-
-
-class DiaryDatabase(DiaryResponseBase):
-    pass
-
-
-class CreateDiaryResponse(ResponseTemplate):
-    data: DiaryResponseWithoutUser
-
-
-class CreateDiaryResponse(ResponseTemplate):
-    data: DiaryResponseWithoutUser
-
-
-class GetAllDiaryResponse(ResponseTemplate):
-    data: list[DiaryResponseWithoutUser]
-
-
 class GetEmotionSummaryResponseData(TemplateModel):
     emotion: Optional[EmotionCategory] = Field(
         ...,
@@ -81,6 +100,28 @@ class GetEmotionSummaryResponseData(TemplateModel):
 
 class GetEmotionSummaryResponse(ResponseTemplate):
     data: GetEmotionSummaryResponseData
+
+
+class DiaryResponseWithoutUserPlusArticles(DiaryResponseWithoutUser):
+    articles: list[Article] = Field(
+        ...,
+        description="List of articles based on this diary emotion. Positive emotion don't have articles in them, this is represented by empty array")
+
+
+class DiaryDatabase(DiaryResponseBase):
+    pass
+
+
+class CreateDiaryBody(BaseDiary):
+    pass
+
+
+class CreateDiaryResponse(ResponseTemplate):
+    data: DiaryResponseWithoutUserPlusArticles
+
+
+class GetAllDiaryResponse(ResponseTemplate):
+    data: list[DiaryResponseWithoutUser]
 
 
 class GetOneDiaryResponse(ResponseTemplate):
@@ -93,7 +134,7 @@ class UpdateDiaryBody(CreateDiaryBody):
 
 
 class UpdateDiaryResponse(ResponseTemplate):
-    data: DiaryResponseWithoutUser
+    data: DiaryResponseWithoutUserPlusArticles
 
 
 class DeleteDiaryResponse(ResponseTemplate):
@@ -104,3 +145,7 @@ class TranslateResponse(TemplateModel):
     translated_text: str
     detected_source_language: str
     input: str
+
+
+class GetAllArticleResponse(ResponseTemplate):
+    data: list[Article]

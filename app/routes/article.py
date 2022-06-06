@@ -5,10 +5,9 @@ from google.cloud.firestore import Client
 from pydantic import parse_obj_as
 
 from app.database import get_fs
-from app.schema.article import Article, GetAllArticleResponse
 from app.schema.authentication import AccessToken
 from app.schema.default_response import error_reason
-from app.schema.diary import EmotionCategory
+from app.schema.diary import Article, EmotionCategory, GetAllArticleResponse
 from app.services.article import get_all_articles
 from app.utils.depedencies import get_current_user
 from app.utils.schema import convert_enum_to_string
@@ -39,6 +38,8 @@ def get_all_diary_route(
             convert_enum_to_string(EmotionCategory)),
         current_user: AccessToken = Depends(get_current_user),
         fs: Client = Depends(get_fs)):
+    if emotions is not None:
+        emotions: list[str] = list(map(lambda x: x.value, emotions))
     articles = get_all_articles(fs, page=page, size=size, emotions=emotions)
     articles_response = parse_obj_as(list[Article], articles)
     response = GetAllArticleResponse(

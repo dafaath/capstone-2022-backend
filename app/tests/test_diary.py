@@ -8,7 +8,8 @@ from app.utils.test import (DIARY_RESPONSE_KEYS,
                             have_correct_status,
                             have_correct_status_and_message,
                             have_data_list_with_exact_properties,
-                            have_error_message)
+                            have_data_list_with_minimum_properties,
+                            have_error_message, have_minimum_data_properties)
 from config import get_settings
 
 common_var = {}
@@ -54,9 +55,11 @@ async def test_create_diaries_regular(test_db, user_token, client: TestClient):
                 "emotion": EmotionCategory.ANGER.value})
         have_correct_status_and_message(response, 201, "create diary")
         have_base_templates(response)
-        have_correct_data_properties(response, DIARY_RESPONSE_KEYS)
+        have_minimum_data_properties(response, DIARY_RESPONSE_KEYS)
         data = response.json()["data"]
         assert data["content"] == data["translatedContent"]
+        assert isinstance(data["articles"], list)
+        assert len(data["articles"]) > 0
         diaries.append(data)
         user_diaries.append(data)
 
@@ -86,13 +89,15 @@ async def test_create_diaries_admin(test_db, admin_token, client: TestClient):
                 admin_token},
             json=data,
             params={
-                "emotion": EmotionCategory.FEAR.value,
+                "emotion": EmotionCategory.JOY.value,
                 "translate": False})
         have_correct_status_and_message(response, 201, "create diary")
         have_base_templates(response)
-        have_correct_data_properties(response, DIARY_RESPONSE_KEYS)
+        have_minimum_data_properties(response, DIARY_RESPONSE_KEYS)
         data = response.json()["data"]
         assert data["content"] == data["translatedContent"]
+        assert isinstance(data["articles"], list)
+        assert len(data["articles"]) == 0
         diaries.append(data)
         admin_diaries.append(data)
 
@@ -122,7 +127,7 @@ async def test_create_translated_diaries_admin(test_db, admin_token, client: Tes
         json=body)
     have_correct_status_and_message(response, 201, "create diary")
     have_base_templates(response)
-    have_correct_data_properties(response, DIARY_RESPONSE_KEYS)
+    have_minimum_data_properties(response, DIARY_RESPONSE_KEYS)
     data = response.json()["data"]
     assert data["title"] == data["title"]
     assert data["content"] == data["content"]
@@ -186,6 +191,8 @@ async def test_get_admin_user_diaries(test_db, admin_token, client: TestClient):
         data[i]["timeUpdated"] = ""
         new_admin_diaries[i]["timeCreated"] = ""
         data[i]["timeCreated"] = ""
+        new_admin_diaries[i]["articles"] = None
+        data[i]["articles"] = None
         assert new_admin_diaries[i] == data[i]
 
 
@@ -208,6 +215,8 @@ async def test_get_test_user_diaries(test_db, user_token, client: TestClient):
         data[i]["timeUpdated"] = ""
         new_user_diaries[i]["timeCreated"] = ""
         data[i]["timeCreated"] = ""
+        new_user_diaries[i]["articles"] = None
+        data[i]["articles"] = None
         assert new_user_diaries[i] == data[i]
 
 
@@ -256,7 +265,7 @@ async def test_update_regular(test_db, user_token, client: TestClient):
         assert resp["data"]["content"] == resp["data"]["translatedContent"]
         have_correct_status_and_message(response, 201, "update diary")
         have_base_templates(response)
-        have_correct_data_properties(response, DIARY_RESPONSE_KEYS)
+        have_minimum_data_properties(response, DIARY_RESPONSE_KEYS)
 
 
 async def test_update_diary_admin(test_db, admin_token, user_token, client: TestClient):
@@ -285,7 +294,7 @@ async def test_update_diary_admin(test_db, admin_token, user_token, client: Test
         assert resp["data"]["content"] == resp["data"]["translatedContent"]
         have_correct_status_and_message(response, 201, "update diary")
         have_base_templates(response)
-        have_correct_data_properties(response, DIARY_RESPONSE_KEYS)
+        have_minimum_data_properties(response, DIARY_RESPONSE_KEYS)
 
 
 async def test_update_translated_diary_admin(test_db, admin_token, user_token, client: TestClient):
@@ -309,7 +318,7 @@ async def test_update_translated_diary_admin(test_db, admin_token, user_token, c
     assert resp["data"]["translatedContent"] == "I walk following my own shadow that extends ahead"
     have_correct_status_and_message(response, 201, "update diary")
     have_base_templates(response)
-    have_correct_data_properties(response, DIARY_RESPONSE_KEYS)
+    have_minimum_data_properties(response, DIARY_RESPONSE_KEYS)
 
 
 async def test_update_diary_forbidden(test_db, user_token, client: TestClient):

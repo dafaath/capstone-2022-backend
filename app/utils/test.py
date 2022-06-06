@@ -50,6 +50,11 @@ def have_correct_data_properties(response: Response, keys: list[str]):
     dict_have_exact_properties(resp["data"], keys)
 
 
+def have_minimum_data_properties(response: Response, keys: list[str]):
+    resp = response.json()
+    dict_have_minimum_properties(resp["data"], keys)
+
+
 def have_data_list_with_minimum_properties(response: Response, keys: list[str]):
     resp = response.json()
     assert isinstance(resp["data"], list)

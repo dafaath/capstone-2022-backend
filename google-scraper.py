@@ -36,16 +36,16 @@ def do_google_search(search_item: SearchItem):
 
     organic_result = results["organic_results"]
 
-    for res in organic_result:
-        articles = Article(emotion=search_item.emotion, language=ArticleLanguage.ID, **res)
+    for i, res in enumerate(organic_result):
         id = str(uuid4())
+        articles = Article(id=id, emotion=search_item.emotion, language=ArticleLanguage.ID, **res)
+        print(f"Saving article {i}, {articles.title}")
         fs.collection("articles").document(id).set(articles.dict())
 
 
 def main():
     search_items = [
-        SearchItem(emotion=EmotionCategory.ANGER, query="solusi mengatasi marah"),
-        SearchItem(emotion=EmotionCategory.FEAR, query="solusi mengatasi rasa takut")]
+        SearchItem(emotion=EmotionCategory.LOVE, query="tips pdkt")]
     for si in search_items:
         do_google_search(si)
 

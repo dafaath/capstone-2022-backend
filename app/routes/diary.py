@@ -13,11 +13,13 @@ from app.schema.authentication import AccessToken
 from app.schema.default_response import error_reason
 from app.schema.diary import (CreateDiaryBody, CreateDiaryResponse,
                               DeleteDiaryResponse, DiaryResponseWithoutUser,
+                              DiaryResponseWithoutUserPlusArticles,
                               EmotionCategory, GetAllDiaryResponse,
                               GetEmotionSummaryResponse,
                               GetEmotionSummaryResponseData,
                               GetOneDiaryResponse, UpdateDiaryBody,
                               UpdateDiaryResponse)
+from app.services.article import get_all_articles
 from app.services.diary import (create_diary, delete_diary, get_all_diary,
                                 get_diary_by_id_or_error, get_emotion_summary,
                                 get_user_diary, update_diary)
@@ -46,7 +48,8 @@ def create_diary_route(
         translate_client: TranslateClient = Depends(get_translate_client),
         current_user: AccessToken = Depends(get_current_user)):
     saved_diary = create_diary(body, current_user.id, fs, translate_client, translate=translate, emotion=emotion)
-    data = DiaryResponseWithoutUser(**saved_diary.dict())
+    articles = get_all_articles(fs, page=1, size=10, emotions=[saved_diary.emotion])
+    data = DiaryResponseWithoutUserPlusArticles(**saved_diary.dict(), articles=articles)
     response = CreateDiaryResponse(
         message="Create diary successful", data=data)
     return response
@@ -146,8 +149,9 @@ def update_diary_route(
                             headers={"WWW-Authenticate": "Bearer"})
 
     updated_diary = update_diary(diary, body, fs, translate_client, translate)
+    articles = get_all_articles(fs, page=1, size=10, emotions=[updated_diary.emotion])
 
-    data = DiaryResponseWithoutUser(**updated_diary.dict())
+    data = DiaryResponseWithoutUserPlusArticles(**updated_diary.dict(), articles=articles)
     response = UpdateDiaryResponse(
         message="Successfully update diary", data=data)
     return response

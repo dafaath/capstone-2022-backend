@@ -1,7 +1,6 @@
 from pydantic import ValidationError
 
-from app.schema.article import Article
-from app.schema.diary import DiaryDatabase
+from app.schema.diary import Article, DiaryDatabase
 
 
 def document_to_diary(docs):
