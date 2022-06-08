@@ -1,4 +1,5 @@
 import enum
+import html
 import os
 import pickle
 import re
@@ -23,8 +24,9 @@ def translate_content(input: str, translate_client: TranslateClient, translate: 
         input = input.decode("utf-8")
 
     if translate:
-        response: str = translate_client.translate(input, target_language="en")
+        response: dict = translate_client.translate(input, target_language="en")
         translate_response = TranslateResponse(**response)
+        translate_response.translated_text = html.unescape(translate_response.translated_text)
     else:
         translate_response = TranslateResponse(
             translated_text=input,
@@ -33,23 +35,15 @@ def translate_content(input: str, translate_client: TranslateClient, translate: 
     return translate_response
 
 
-def prediction(input: str):
+def prediction(input: str, tokenizer, model) -> EmotionCategory:
     arrayInput = re.split('[?.!]', input)
 
     # Secara berurutan array dimulai dari kiri menghitung sad, joy, fear, love, surprise
     emotionPrediction = [0, 0, 0, 0, 0, 0]
 
-    tokenizer = None
-    filename = 'tokenizer.pickle'
-    full_path_filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'utils', filename)
-    with open(full_path_filename, 'rb') as x:
-        tokenizer = pickle.load(x)
     tokenizedArrayInput = tokenizer.texts_to_sequences(arrayInput)
     paddedInput = pad_sequences(tokenizedArrayInput, padding="post", truncating="post", maxlen=400)
 
-    filename = 'model.h5'
-    full_path_filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'utils', filename)
-    model = tf.keras.models.load_model(full_path_filename)
     predictions = model.predict(paddedInput)
 
     for prediction in predictions:
@@ -59,17 +53,17 @@ def prediction(input: str):
 
     emotion = emotionPrediction.index(max(emotionPrediction))
     if emotion == 0:
-        return EmotionCategory.SADNESS
+        return EmotionCategory.SADNESS.value
     elif emotion == 1:
-        return EmotionCategory.JOY
+        return EmotionCategory.JOY.value
     elif emotion == 2:
-        return EmotionCategory.FEAR
+        return EmotionCategory.FEAR.value
     elif emotion == 3:
-        return EmotionCategory.ANGER
+        return EmotionCategory.ANGER.value
     elif emotion == 4:
-        return EmotionCategory.love
+        return EmotionCategory.LOVE.value
 
-    return EmotionCategory.SURPRISE
+    return EmotionCategory.SURPRISE.value
 
 
 def create_diary(
@@ -77,14 +71,15 @@ def create_diary(
         user_id: str,
         fs: Client,
         translate_client: TranslateClient,
+        tokenizer,
+        model,
         translate: bool = True,
         emotion: EmotionCategory = None):
 
-    if emotion is None:
-        # TODO detect emotion
-        emotion = prediction(input.content)
-
     translate_response = translate_content(input.content, translate_client, translate=translate)
+
+    if emotion is None:
+        emotion = prediction(translate_response.translated_text, tokenizer, model)
 
     id = str(uuid4())
     time_created = datetime.now()
@@ -166,6 +161,8 @@ def update_diary(
         diary: DiaryDatabase,
         body: UpdateDiaryBody,
         fs: Client,
+        tokenizer,
+        model,
         translate_client: TranslateClient,
         translate=True):
     data = body.dict(exclude_none=True)
@@ -174,6 +171,7 @@ def update_diary(
         setattr(diary, key, value)
 
     translate_response = translate_content(diary.content, translate_client, translate=translate)
+    diary.emotion = prediction(translate_response.translated_text, tokenizer, model)
     diary.time_updated = datetime.now()
     diary.translated_content = translate_response.translated_text
 

@@ -8,6 +8,7 @@ from pydantic import parse_obj_as
 from sqlalchemy.orm import Session
 
 from app.database import get_db, get_fs, get_translate_client
+from app.dependencies import get_model, get_tokenizer
 from app.models import UserRole
 from app.schema.authentication import AccessToken
 from app.schema.default_response import error_reason
@@ -45,9 +46,19 @@ def create_diary_route(
             description="Force set an emotion to this diary, use for testing purposes only"),
         fs: Client = Depends(get_fs),
         db: Session = Depends(get_db),
+        tokenizer=Depends(get_tokenizer),
+        model=Depends(get_model),
         translate_client: TranslateClient = Depends(get_translate_client),
         current_user: AccessToken = Depends(get_current_user)):
-    saved_diary = create_diary(body, current_user.id, fs, translate_client, translate=translate, emotion=emotion)
+    saved_diary = create_diary(
+        body,
+        current_user.id,
+        fs,
+        translate_client,
+        translate=translate,
+        emotion=emotion,
+        tokenizer=tokenizer,
+        model=model)
     articles = get_all_articles(fs, page=1, size=10, emotions=[saved_diary.emotion])
     data = DiaryResponseWithoutUserPlusArticles(**saved_diary.dict(), articles=articles)
     response = CreateDiaryResponse(
@@ -140,6 +151,8 @@ def update_diary_route(
                               description="The diary id in UUID format"),
         translate_client: TranslateClient = Depends(get_translate_client),
         current_user: AccessToken = Depends(get_current_user),
+        tokenizer=Depends(get_tokenizer),
+        model=Depends(get_model),
         fs: Client = Depends(get_fs)):
 
     diary = get_diary_by_id_or_error(str(diary_id), fs)
@@ -148,7 +161,7 @@ def update_diary_route(
         raise HTTPException(403, "You are not allowed do this action because you are not the owner of this diary.",
                             headers={"WWW-Authenticate": "Bearer"})
 
-    updated_diary = update_diary(diary, body, fs, translate_client, translate)
+    updated_diary = update_diary(diary, body, fs, tokenizer, model, translate_client, translate)
     articles = get_all_articles(fs, page=1, size=10, emotions=[updated_diary.emotion])
 
     data = DiaryResponseWithoutUserPlusArticles(**updated_diary.dict(), articles=articles)

@@ -55,7 +55,7 @@ jobs:
         run: |
           pipenv run isort
           pipenv run format
-          pipenv run test
+          pipenv run test -x
           pipenv requirements > requirements.txt
         env:
           ENV: "test"
@@ -102,7 +102,7 @@ jobs:
       - name: Set deploy url as ENV
         run: echo "PRODUCTION_BASE_URL=${{ steps.deploy.outputs.url }}" >> $GITHUB_ENV
       - name: Test newly deployed server
-        run: pipenv run test -c test_production_env.ini -s
+        run: pipenv run test -c test_production_env.ini -s -x
       - name: Migrate to new version if test success and delete old version
         run: |
           yes Y | gcloud app services set-traffic default --splits $(echo "$PRODUCTION_BASE_URL" | cut -d / -f 3 | cut -d - -f 1)=1 --project="emodiary-app"

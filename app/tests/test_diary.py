@@ -117,7 +117,7 @@ async def test_emotion_summary_admin(test_db, admin_token, client: TestClient):
 async def test_create_translated_diaries_admin(test_db, admin_token, client: TestClient):
     body = {
         "title": "My first diary",
-        "content": "Waktu berjalan ke Barat di waktu pagi hari matahari mengikutiku di belakang."
+        "content": "Aku sangat marah pada temanku"
     }
     response = client.post(
         f"/diaries/",
@@ -131,7 +131,13 @@ async def test_create_translated_diaries_admin(test_db, admin_token, client: Tes
     data = response.json()["data"]
     assert data["title"] == data["title"]
     assert data["content"] == data["content"]
-    assert data["translatedContent"] == "Time went west in the morning the sun followed me behind."
+    assert data["translatedContent"] == "I'm so mad at my friend"
+    assert data["emotion"] == "anger"
+    assert isinstance(data["articles"], list)
+    assert len(data["articles"]) > 0
+    for article in data["articles"]:
+        assert article["emotion"] == "anger"
+
     diaries.append(data)
     admin_diaries.append(data)
     translated_diaries.append(data)
@@ -300,7 +306,7 @@ async def test_update_diary_admin(test_db, admin_token, user_token, client: Test
 async def test_update_translated_diary_admin(test_db, admin_token, user_token, client: TestClient):
     diary = translated_diaries[0]
     new_title = "My updated diary"
-    new_content = "aku berjalan mengikuti bayang-bayangku sendiri yang memanjang di depan"
+    new_content = "Aku sangat senang"
     data = {
         "title": new_title,
         "content": new_content
@@ -315,7 +321,11 @@ async def test_update_translated_diary_admin(test_db, admin_token, user_token, c
     print(resp)
     assert resp["data"]["title"] == new_title
     assert resp["data"]["content"] == new_content
-    assert resp["data"]["translatedContent"] == "I walk following my own shadow that extends ahead"
+    assert resp["data"]["translatedContent"] == "I am very happy"
+    assert resp["data"]["emotion"] == "joy"
+    assert isinstance(resp["data"]["articles"], list)
+    assert len(resp["data"]["articles"]) == 0
+
     have_correct_status_and_message(response, 201, "update diary")
     have_base_templates(response)
     have_minimum_data_properties(response, DIARY_RESPONSE_KEYS)

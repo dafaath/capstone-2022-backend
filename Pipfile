@@ -85,6 +85,5 @@ dbrevision = "alembic revision --autogenerate" #Upgrade database
 dbupgrade = "alembic upgrade heads" #Upgrade database
 dbhistory = "alembic history" #Show migration history
 
-
 [requires]
 python_version = "3.9"
