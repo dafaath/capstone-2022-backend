@@ -17,7 +17,7 @@ class RunningENV(Enum):
 class DefaultSettings(BaseSettings):
     env: RunningENV = RunningENV.DEVELOPMENT
     db_user: str = "postgres"
-    db_pass: str = ""
+    db_pass: str = "postgres"
     db_host: str = "localhost"
     db_port: int = 5432
     db_name: str = "emodiary"

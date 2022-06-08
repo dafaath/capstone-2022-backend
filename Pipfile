@@ -70,6 +70,7 @@ requests-toolbelt = "*"
 google-cloud-translate = "*"
 autoflake = "*"
 google-search-results = "*"
+tensorflow = "*"
 
 [dev-packages]
 

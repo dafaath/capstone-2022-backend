@@ -72,6 +72,7 @@ six==1.16.0
 sniffio==1.2.0
 sqlalchemy==1.4.36
 starlette==0.18.0
+tensorflow==2.8.0
 toml==0.10.2
 tomli==2.0.1
 typing-extensions==4.2.0
