@@ -1,17 +1,18 @@
-import os
 import enum
+import os
+import pickle
 import re
 from datetime import datetime
 from uuid import uuid4
 
 import six
-import pickle
 import tensorflow as tf
-from keras.preprocessing.text import Tokenizer
 from fastapi import HTTPException
 from google.cloud.firestore import Client
 from google.cloud.translate_v2 import Client as TranslateClient
+from keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
+
 from app.schema.diary import (CreateDiaryBody, DiaryDatabase, EmotionCategory,
                               TranslateResponse, UpdateDiaryBody)
 from app.utils.firestore import document_to_diary
@@ -31,11 +32,12 @@ def translate_content(input: str, translate_client: TranslateClient, translate: 
             input=input)
     return translate_response
 
+
 def prediction(input: str):
     arrayInput = re.split('[?.!]', input)
 
-    #Secara berurutan array dimulai dari kiri menghitung sad, joy, fear, love, surprise
-    emotionPrediction = [0,0,0,0,0,0]
+    # Secara berurutan array dimulai dari kiri menghitung sad, joy, fear, love, surprise
+    emotionPrediction = [0, 0, 0, 0, 0, 0]
 
     tokenizer = None
     filename = 'tokenizer.pickle'
@@ -43,7 +45,7 @@ def prediction(input: str):
     with open(full_path_filename, 'rb') as x:
         tokenizer = pickle.load(x)
     tokenizedArrayInput = tokenizer.texts_to_sequences(arrayInput)
-    paddedInput = pad_sequences(tokenizedArrayInput,padding="post",truncating="post",maxlen=400)
+    paddedInput = pad_sequences(tokenizedArrayInput, padding="post", truncating="post", maxlen=400)
 
     filename = 'model.h5'
     full_path_filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'utils', filename)
@@ -66,9 +68,8 @@ def prediction(input: str):
         return EmotionCategory.ANGER
     elif emotion == 4:
         return EmotionCategory.love
-        
-    return EmotionCategory.SURPRISE
 
+    return EmotionCategory.SURPRISE
 
 
 def create_diary(
