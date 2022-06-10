@@ -17,6 +17,7 @@
             function handleCredentialResponse(response) {
                 const formData = new FormData();
                 formData.append('credential', response.credential);
+                console.log(response.credential)
                 fetch('/authentications/login/google', {
                         method: 'POST', // *GET, POST, PUT, DELETE, etc
                         body: formData

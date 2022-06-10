@@ -41,6 +41,9 @@ class User(Base):
 
     @hybrid_property
     def photo(self):
+        if "https" in self._photo or "http" in self._photo:
+            return self._photo
+
         return settings.static_file_routes + self._photo
 
     @photo.setter

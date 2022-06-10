@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import logging
 from typing import Union
 
 import bcrypt
@@ -6,6 +7,7 @@ from fastapi import HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from google.auth.transport import requests
 from google.oauth2 import id_token
+from google.auth.exceptions import GoogleAuthError
 from jose import jwt
 from sqlalchemy.orm import Session
 
@@ -154,11 +156,14 @@ def validate_google_csrf_token(csrf_token_body: str, csrf_token_cookie: str):
 
 def validate_google_token(token: str):
     try:
-        payload = id_token.verify_oauth2_token(token, requests.Request(), settings.google_client_id)
+        payload = id_token.verify_token(token, requests.Request(), settings.google_client_id)
         payload = GoogleJWTPayload(**payload)
         return payload
-    except ValueError:
-        # Invalid token
+    except GoogleAuthError as e:
+        logging.error(e)
+        raise HTTPException(401, "The issuer is invalid")
+    except ValueError as e:
+        logging.error(e)
         raise HTTPException(401, "The google token is invalid")
 
 

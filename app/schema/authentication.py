@@ -68,16 +68,15 @@ class LoginGoogleBody(TemplateModel):
 
 class GoogleJWTPayload(TemplateModel):
     iss: str
-    nbf: int
+    azp: str
     aud: str
     sub: str
     email: str
     email_verified: bool
-    azp: str
     name: str
     picture: str
     given_name: str
     family_name: str
+    locale: str
     iat: int
     exp: int
-    jti: str
