@@ -1,13 +1,13 @@
-from datetime import datetime, timedelta
 import logging
+from datetime import datetime, timedelta
 from typing import Union
 
 import bcrypt
 from fastapi import HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
+from google.auth.exceptions import GoogleAuthError
 from google.auth.transport import requests
 from google.oauth2 import id_token
-from google.auth.exceptions import GoogleAuthError
 from jose import jwt
 from sqlalchemy.orm import Session
 
