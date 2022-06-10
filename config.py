@@ -32,7 +32,7 @@ class DefaultSettings(BaseSettings):
     jwt_refresh_token_secret_key: str = ".W,='ht^xGH'Kg5j?b~5cG=Bh~G;Mr&rgUd4|KKtMEiB3IWjx:xD,!vJ&GxIMJMmNX>+WC~Oa6.p^wdOot"
     jwt_access_token_expiry_minutes: int = 60
     jwt_algorithm: str = "HS256"
-    google_client_id: str = "594020275326-c7nahac9ml1an8dg1pqqmufihun84t27.apps.googleusercontent.com"
+    google_client_id: str = "594020275326-3bbo9l5bl9p62ou1j2tt3msmb3noimh1.apps.googleusercontent.com"
     google_cloud_project_id: str = "emodiary-app"
     google_application_credentials = "service-account.json"  # Google cloud service account
     bucket_name: str = "emodiary-app-photo-profile"
