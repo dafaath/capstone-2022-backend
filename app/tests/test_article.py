@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
-from app.schema.diary import EmotionCategory
 
+from app.schema.diary import EmotionCategory
 from app.utils.test import (ARTICLE_RESPONSE_KEYS, have_base_templates,
                             have_correct_status_and_message,
                             have_data_list_with_minimum_properties)
