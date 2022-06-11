@@ -55,6 +55,7 @@ class GetOneUserResponse(ResponseTemplate):
 class UpdateUserBody(TemplateModel):
     email: Optional[EmailStr] = Field(None, example="example@gmail.com",
                                       description="User email")
+    fullname: Optional[str] = Field(None, example="John Wick", description="The person full name")
     phone: Optional[str] = Field(
         None,
         example="+6281390823143",

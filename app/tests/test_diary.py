@@ -97,7 +97,7 @@ async def test_create_diaries_admin(test_db, admin_token, client: TestClient):
         data = response.json()["data"]
         assert data["content"] == data["translatedContent"]
         assert isinstance(data["articles"], list)
-        assert len(data["articles"]) == 0
+        assert len(data["articles"]) > 0
         diaries.append(data)
         admin_diaries.append(data)
 
@@ -324,7 +324,7 @@ async def test_update_translated_diary_admin(test_db, admin_token, user_token, c
     assert resp["data"]["translatedContent"] == "I am very happy"
     assert resp["data"]["emotion"] == "joy"
     assert isinstance(resp["data"]["articles"], list)
-    assert len(resp["data"]["articles"]) == 0
+    assert len(resp["data"]["articles"]) > 0
 
     have_correct_status_and_message(response, 201, "update diary")
     have_base_templates(response)

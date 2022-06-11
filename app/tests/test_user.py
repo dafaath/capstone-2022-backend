@@ -192,15 +192,18 @@ async def test_update_user_admin(test_db, admin_token, client: TestClient):
     for user in users_list:
         new_email = f"{random_char(15)}@gmail.com"
         new_phone_number = f"+6181{random_digit(10)}"
+        new_fullname = f"Dafa A"
         data = {
             "email": new_email,
             "phone": new_phone_number,
+            "fullname": new_fullname
         }
         response = client.patch(f"/users/{user.id}", headers={"Authorization": "bearer " + admin_token}, json=data)
         resp = response.json()
         print(resp)
         assert resp["data"]["email"] == new_email
         assert resp["data"]["phone"] == new_phone_number
+        assert resp["data"]["fullname"] == new_fullname
         have_correct_status_and_message(response, 201, "update user")
         have_base_templates(response)
         have_correct_data_properties(response, USER_RESPONSE_KEYS)
@@ -212,11 +215,13 @@ async def test_update_regular(test_db, client: TestClient):
         new_email = random_char(8) + "@gmail.com"
         new_phone_number = "+6281" + random_digit(9)
         new_password = random_char(4)
+        new_fullname = f"Eren jeger"
         body = {
             "email": new_email,
             "phone": new_phone_number,
             "newPassword": new_password,
             "currentPassword": user.password,
+            "fullname": new_fullname
         }
         print(body)
         response = client.patch(
@@ -228,6 +233,7 @@ async def test_update_regular(test_db, client: TestClient):
         resp = response.json()
         print(resp)
         assert resp["data"]["phone"] == new_phone_number
+        assert resp["data"]["fullname"] == new_fullname
         have_correct_status_and_message(response, 201, "update user")
         have_base_templates(response)
         have_correct_data_properties(response, USER_RESPONSE_KEYS)

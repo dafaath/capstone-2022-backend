@@ -1,4 +1,5 @@
 from fastapi.testclient import TestClient
+from app.schema.diary import EmotionCategory
 
 from app.utils.test import (ARTICLE_RESPONSE_KEYS, have_base_templates,
                             have_correct_status_and_message,
@@ -8,9 +9,14 @@ from app.utils.test import (ARTICLE_RESPONSE_KEYS, have_base_templates,
 async def test_get_all_diaries(test_db, admin_token, client: TestClient):
     response = client.get("/articles", headers={"Authorization": "bearer " + admin_token})
     resp = response.json()
-    print(resp)
 
     assert isinstance(resp["data"], list)
+    print(resp["data"])
+    emotion_list = set([e.value for e in EmotionCategory])
+    emotion_current = set([])
+    for a in resp["data"]:
+        emotion_current.add(a["emotion"])
+    assert emotion_list == emotion_current
 
     have_base_templates(response)
     have_data_list_with_minimum_properties(response, ARTICLE_RESPONSE_KEYS)

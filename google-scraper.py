@@ -5,7 +5,7 @@ from serpapi import GoogleSearch
 import json
 from app.database import get_fs
 from app.schema.diary import EmotionCategory
-from app.schema.article import Article, ArticleLanguage
+from app.schema.diary import Article, ArticleLanguage
 from app.utils.firestore import document_to_article
 from config import DefaultSettings, get_settings
 from google.cloud.firestore import Client
@@ -39,13 +39,13 @@ def do_google_search(search_item: SearchItem):
     for i, res in enumerate(organic_result):
         id = str(uuid4())
         articles = Article(id=id, emotion=search_item.emotion, language=ArticleLanguage.ID, **res)
-        print(f"Saving article {i}, {articles.title}")
+        print(f"Saving article {i + 1}, {articles.title}")
         fs.collection("articles").document(id).set(articles.dict())
 
 
 def main():
     search_items = [
-        SearchItem(emotion=EmotionCategory.LOVE, query="tips pdkt")]
+        SearchItem(emotion=EmotionCategory.SURPRISE, query="masalah apa yang disebabkan kaget")]
     for si in search_items:
         do_google_search(si)
 
